@@ -2,7 +2,7 @@ from typing import Optional
 
 from phi.llm.openai import OpenAIChat
 from phi.conversation import Conversation
-from phi.agent.website import WebsiteAgent
+from phi.tools.website import WebsiteTools
 
 from llm.settings import llm_settings
 from llm.storage import website_conversation_storage
@@ -30,7 +30,7 @@ def get_website_auto_conversation(
         monitoring=True,
         function_calls=True,
         show_function_calls=True,
-        agents=[WebsiteAgent(knowledge_base=website_knowledge_base)],
+        tools=[WebsiteTools(knowledge_base=website_knowledge_base)],
         system_prompt="""\
         You are an assistant named 'phi' designed to answer questions about website contents.
         You have access to functions to search a knowledge base of website contents.
