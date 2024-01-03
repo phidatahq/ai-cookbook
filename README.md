@@ -1,6 +1,6 @@
 ## AI Cookbook
 
-This repo contains the code for running an LLM App in 2 environments:
+This repo contains the code for running the AI Cookbook in 2 environments:
 
 1. `dev`: A development environment running locally on docker
 2. `prd`: A production environment running on AWS ECS
@@ -9,7 +9,7 @@ This repo contains the code for running an LLM App in 2 environments:
 
 1. Clone the git repo
 
-> from the `llm-app` dir:
+> from the `ai-cookbook` dir:
 
 2. Create + activate a virtual env:
 
@@ -42,7 +42,7 @@ cp -r workspace/example_secrets workspace/secrets
 cp example.env .env
 ```
 
-## Run LLM App locally
+## Run Cookbook locally
 
 1. Install [docker desktop](https://www.docker.com/products/docker-desktop)
 
@@ -71,15 +71,3 @@ phi ws up
 ```sh
 phi ws down
 ```
-
-## Next Steps:
-
-- [Run the LLM App on AWS](https://docs.phidata.com/templates/llm-app#run-on-aws)
-- [Update the dev application](https://docs.phidata.com/day-2/dev-app)
-- [Update the production application](https://docs.phidata.com/day-2/production-app)
-- [Add python dependencies](https://docs.phidata.com/day-2/python-libraries)
-- [Format & validate your code](https://docs.phidata.com/day-2/format-and-validate)
-- [Secret management](https://docs.phidata.com/day-2/secrets)
-- [CI/CD](https://docs.phidata.com/day-2/ci-cd)
-- [Add database tables](https://docs.phidata.com/day-2/database-tables)
-- [Read the LLM App guide](https://docs.phidata.com/templates/llm-app)

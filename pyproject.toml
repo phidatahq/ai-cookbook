@@ -1,5 +1,5 @@
 [project]
-name = "llm-app"
+name = "ai-cookbook"
 version = "0.1.0"
 requires-python = ">3.7"
 readme = "README.md"
@@ -32,8 +32,11 @@ dependencies = [
   "beautifulsoup4",
   "types-beautifulsoup4",
   "pillow",
+  "pandas-stubs",
   "types-Pillow",
   "wikipedia",
+  # Recipe libraries
+  "langchain",
   # Type checking
   "mypy",
   # Testing
@@ -41,7 +44,7 @@ dependencies = [
   # Linting and Formatting
   "ruff",
   # phidata
-  "phidata==2.1.1",
+  "phidata==2.1.3",
 ]
 
 [build-system]
