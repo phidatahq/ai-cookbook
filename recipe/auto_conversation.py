@@ -12,7 +12,9 @@ knowledge_base.load(recreate=False)
 
 conversation = Conversation(
     knowledge_base=knowledge_base,
-    add_references_to_prompt=True,
+    function_calls=True,
+    show_function_calls=True,
 )
 
-conversation.print_response("How do I make chicken tikka salad?")
+conversation.print_response('How do I make chicken tikka salad?')
+conversation.print_response('What was my last question?')

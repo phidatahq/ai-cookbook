@@ -1,6 +1,8 @@
 ## AI Cookbook
 
-This repo contains the code for running the AI Cookbook in 2 environments:
+[Full documentation](https://docs.phidata.com/ai-cookbook)
+
+This repo contains the code for running an AI Cookbook in 2 environments:
 
 1. `dev`: A development environment running locally on docker
 2. `prd`: A production environment running on AWS ECS
