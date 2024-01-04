@@ -24,4 +24,4 @@ give_story_a_name = LLMTask(
 )
 
 story_conversation = Conversation(tasks=[get_story_theme, write_story, give_story_a_name])
-story_conversation.cli_app()
+story_conversation.cli_app(user="Theme")
