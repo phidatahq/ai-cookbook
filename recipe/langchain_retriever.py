@@ -22,7 +22,7 @@ def load_vector_store():
     Chroma.from_documents(documents, OpenAIEmbeddings(), persist_directory=str(chroma_db_dir))
 
 # -*- Load the vector store
-# load_vector_store()
+load_vector_store()
 # -*- Get the vectordb
 db = Chroma(embedding_function=OpenAIEmbeddings(), persist_directory=str(chroma_db_dir))
 # -*- Create a retriever from the vector store
