@@ -1,13 +1,12 @@
 ## AI Cookbook
 
-[Full documentation](https://docs.phidata.com/ai-cookbook)
+This repo contains a collection of AI recipes/patterns built using [phidata](https://github.com/phidatahq/phidata)
 
-This repo contains the code for running an AI Cookbook in 2 environments:
+- [Full documentation](https://docs.phidata.com/ai-cookbook)
 
-1. `dev`: A development environment running locally on docker
-2. `prd`: A production environment running on AWS ECS
+## Run locally using docker
 
-## Setup Workspace
+### Setup
 
 1. Clone the git repo
 
@@ -44,7 +43,7 @@ cp -r workspace/example_secrets workspace/secrets
 cp example.env .env
 ```
 
-## Run Cookbook locally
+### Run Cookbook locally
 
 1. Install [docker desktop](https://www.docker.com/products/docker-desktop)
 

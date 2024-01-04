@@ -16,5 +16,5 @@ conversation = Conversation(
     show_function_calls=True,
 )
 
-conversation.print_response('How do I make chicken tikka salad?')
-conversation.print_response('What was my last question?')
+conversation.print_response("How do I make chicken tikka salad?")
+conversation.print_response("What was my last question?")
