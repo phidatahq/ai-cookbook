@@ -21,14 +21,15 @@ def load_vector_store():
     # -*- Embed each chunk and load it into the vector store
     Chroma.from_documents(documents, OpenAIEmbeddings(), persist_directory=str(chroma_db_dir))
 
-
+# -*- Load the vector store
+# load_vector_store()
 # -*- Get the vectordb
 db = Chroma(embedding_function=OpenAIEmbeddings(), persist_directory=str(chroma_db_dir))
 # -*- Create a retriever from the vector store
 retriever = db.as_retriever()
 
 # -*- Create a knowledge base from the vector store
-knowledge_base = LangChainKnowledgeBase(retriever=None)
+knowledge_base = LangChainKnowledgeBase(retriever=retriever)
 
 conv = Conversation(knowledge_base=knowledge_base, debug_mode=True, add_references_to_prompt=True)
 conv.print_response("What did the president say about technology?")
