@@ -27,7 +27,7 @@ def get_autonomous_pdf_assistant(
         storage=pdf_assistant_storage,
         knowledge_base=pdf_knowledge_base,
         monitoring=True,
-        default_tools=True,
+        tool_calls=True,
         show_tool_calls=True,
         debug_mode=debug_mode,
         description="You are a helpful assistant named 'phi' designed to answer questions about PDF contents.",

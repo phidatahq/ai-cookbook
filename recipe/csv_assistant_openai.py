@@ -1,6 +1,6 @@
 from phi.assistant.openai import OpenAIAssistant
 from phi.assistant.openai.file.url import UrlFile
-from phi.assistant.openai.file.local import LocalFile
+from phi.assistant.openai.file.local import LocalFile  # noqa: F401
 from phi.assistant.openai.tool import CodeInterpreter
 
 imdb_movie_data_s3 = UrlFile(

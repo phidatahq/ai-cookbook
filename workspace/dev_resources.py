@@ -56,7 +56,7 @@ container_env = {
 
 # -*- Streamlit running on port 8501:8501
 dev_streamlit = Streamlit(
-    name="ai-app",
+    name=f"{ws_settings.ws_name}-app",
     enabled=ws_settings.dev_app_enabled,
     image=dev_image,
     command="streamlit run app/Home.py",
@@ -73,7 +73,7 @@ dev_streamlit = Streamlit(
 
 # -*- FastApi running on port 8000:8000
 dev_fastapi = FastApi(
-    name="ai-api",
+    name=f"{ws_settings.ws_name}-api",
     enabled=ws_settings.dev_api_enabled,
     image=dev_image,
     command="uvicorn api.main:app --reload",
