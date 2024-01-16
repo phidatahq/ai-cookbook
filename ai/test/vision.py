@@ -1,9 +1,9 @@
-from ai.assistants.vision import get_vision_assistant
+from ai.assistants.image import get_image_assistant
 
-vision_assistant = get_vision_assistant()
+image_assistant = get_image_assistant()
 
 # Single Image
-vision_assistant.print_response(
+image_assistant.print_response(
     [
         {"type": "text", "text": "What's in this image, describe in 1 sentence"},
         {
@@ -14,7 +14,7 @@ vision_assistant.print_response(
 )
 
 # Multiple Images
-vision_assistant.print_response(
+image_assistant.print_response(
     [
         {
             "type": "text",

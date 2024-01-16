@@ -8,10 +8,10 @@ pdf_assistant_storage = PgAssistantStorage(
     table_name="pdf_assistant",
 )
 
-vision_assistant_storage = PgAssistantStorage(
+image_assistant_storage = PgAssistantStorage(
     schema="ai",
     db_url=db_url,
-    table_name="vision_assistant",
+    table_name="image_assistant",
 )
 
 website_assistant_storage = PgAssistantStorage(

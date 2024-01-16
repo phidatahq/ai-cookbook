@@ -40,7 +40,7 @@ def main() -> None:
         return
 
     # Get assistant type
-    pdf_assistant_type = st.sidebar.selectbox("Assistant Type", options=["RAG", "Autonomous"])
+    pdf_assistant_type = st.sidebar.selectbox("Assistant Type", options=["Autonomous", "RAG"])
     # Set assistant_type in session state
     if "pdf_assistant_type" not in st.session_state:
         st.session_state["pdf_assistant_type"] = pdf_assistant_type

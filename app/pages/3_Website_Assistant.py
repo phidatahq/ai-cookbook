@@ -38,7 +38,7 @@ def main() -> None:
         return
 
     # Get assistant type
-    website_assistant_type = st.sidebar.selectbox("Assistant Type", options=["RAG", "Autonomous"])
+    website_assistant_type = st.sidebar.selectbox("Assistant Type", options=["Autonomous", "RAG"])
     # Set assistant_type in session state
     if "website_assistant_type" not in st.session_state:
         st.session_state["website_assistant_type"] = website_assistant_type

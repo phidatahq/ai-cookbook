@@ -12,7 +12,7 @@ from phi.tools.streamlit.components import (
     get_username_sidebar,
 )
 
-from ai.assistants.vision import get_vision_assistant
+from ai.assistants.image import get_image_assistant
 from utils.log import logger
 
 
@@ -52,7 +52,7 @@ def main() -> None:
     image_assistant: Assistant
     if "image_assistant" not in st.session_state or st.session_state["image_assistant"] is None:
         logger.info("---*--- Creating Vision Assistant ---*---")
-        image_assistant = get_vision_assistant(
+        image_assistant = get_image_assistant(
             user_id=username,
             debug_mode=False,
         )
@@ -224,7 +224,7 @@ def main() -> None:
         if st.session_state["image_assistant_run_id"] != new_image_assistant_run_id:
             logger.debug(f"Loading run {new_image_assistant_run_id}")
             logger.info("---*--- Loading Vision Assistant ---*---")
-            st.session_state["image_assistant"] = get_vision_assistant(
+            st.session_state["image_assistant"] = get_image_assistant(
                 user_id=username,
                 run_id=new_image_assistant_run_id,
                 debug_mode=False,
