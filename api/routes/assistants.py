@@ -2,7 +2,7 @@ from typing import Generator, Optional, List, Dict, Any, Literal
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
-from phi.assistant import Assistant, AssistantRow
+from phi.assistant import Assistant, AssistantRun
 from pydantic import BaseModel
 
 from api.routes.endpoints import endpoints
@@ -135,7 +135,7 @@ class GetAssistantRunRequest(BaseModel):
     assistant: AssistantType = "RAG_PDF"
 
 
-@assistants_router.post("/get", response_model=Optional[AssistantRow])
+@assistants_router.post("/get", response_model=Optional[AssistantRun])
 def get_assistant_run(body: GetAssistantRunRequest):
     """Returns the Assistant run"""
 
@@ -151,7 +151,7 @@ class GetAllAssistantRunsRequest(BaseModel):
     user_id: str
 
 
-@assistants_router.post("/get-all", response_model=List[AssistantRow])
+@assistants_router.post("/get-all", response_model=List[AssistantRun])
 def get_assistants(body: GetAllAssistantRunsRequest):
     """Return all Assistant runs for a user"""
 
