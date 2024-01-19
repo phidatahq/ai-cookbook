@@ -52,7 +52,7 @@ packaging==23.2
 pandas==2.1.4
 pandas-stubs==2.1.4.231227
 pgvector==0.2.4
-phidata==2.3.0
+phidata==2.3.2
 pillow==10.2.0
 plotly==5.18.0
 pluggy==1.3.0

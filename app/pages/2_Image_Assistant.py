@@ -123,7 +123,7 @@ def main() -> None:
             ]
             st.session_state["messages"].append({"role": "user", "content": vision_message})
 
-    if st.sidebar.button("New Assistant"):
+    if st.sidebar.button("New Run"):
         restart_assistant()
 
     if uploaded_image:

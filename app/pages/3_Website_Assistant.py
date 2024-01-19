@@ -114,7 +114,7 @@ def main() -> None:
 
             st.session_state["messages"].append({"role": "assistant", "content": response})
 
-    if st.sidebar.button("New Assistant"):
+    if st.sidebar.button("New Run"):
         restart_assistant()
 
     if website_assistant.knowledge_base:
