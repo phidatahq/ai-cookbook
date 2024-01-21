@@ -12,7 +12,7 @@ knowledge_base.load(recreate=False)
 
 assistant = Assistant(
     knowledge_base=knowledge_base,
-    function_calls=True,
+    use_tools=True,
     show_function_calls=True,
 )
 

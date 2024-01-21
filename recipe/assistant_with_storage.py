@@ -32,7 +32,7 @@ def recipe_assistant(new: bool = False, user: str = "user"):
         storage=storage,
         # tool_calls=True adds functions to
         # search the knowledge base and chat history
-        tool_calls=True,
+        use_tools=True,
         show_tool_calls=True,
         # Uncomment the following line to use traditional RAG
         # add_references_to_prompt=True,
