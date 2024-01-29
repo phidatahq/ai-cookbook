@@ -1,0 +1,17 @@
+name: Load Hackernews Knowledge Base
+on:
+  schedule:
+    # * is a special character in YAML so you have to quote this string.
+    # /10 denotes that it will run once every 10 minutes
+    - cron: "*/30 * * * *"
+
+jobs:
+  load-knowledge-base:
+    name: Load Knowledge Base
+    runs-on: ubuntu-latest
+    env:
+      URL: https://api.aidev.run/v1/hn/load-knowledge-base
+      METHOD: POST
+    steps:
+      - uses: sisodiya2421/pinger@master
+        id: ping

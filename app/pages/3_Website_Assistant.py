@@ -17,6 +17,9 @@ from utils.log import logger
 
 st.title(":snowman: Website Assistant")
 st.markdown('<a href="https://github.com/phidatahq/phidata"><h4>by phidata</h4></a>', unsafe_allow_html=True)
+with st.expander(":rainbow[:point_down: Example Questions]"):
+    st.markdown("- What is phidata?")
+    st.markdown("- How do I build an AI App?")
 
 
 def restart_assistant():

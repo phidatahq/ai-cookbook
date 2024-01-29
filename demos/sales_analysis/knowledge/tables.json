@@ -1,0 +1,19 @@
+{
+  "tables": [
+      {
+          "name": "list_of_orders",
+          "description": "Contains information about orders",
+          "path": "https://ai-cookbook.s3.amazonaws.com/sales-analysis/list-of-orders.csv"
+      },
+      {
+          "name": "order_details",
+          "description": "Contains information about order details",
+          "path": "https://ai-cookbook.s3.amazonaws.com/sales-analysis/order-details.csv"
+      },
+      {
+          "name": "sales_targets",
+          "description": "Contains information about sales targets",
+          "path": "https://ai-cookbook.s3.amazonaws.com/sales-analysis/sales-targets.csv"
+      }
+  ]
+}

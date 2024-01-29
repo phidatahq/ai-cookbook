@@ -5,7 +5,7 @@ set -e
 CURR_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WS_ROOT="$(dirname ${CURR_DIR})"
 DOCKERFILE="Dockerfile"
-REPO="repo"
+REPO="phidata"
 NAME="ai-cookbook"
 TAG="dev"
 

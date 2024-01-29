@@ -23,17 +23,21 @@ dependencies = [
   "arxiv",
   "openai",
   "pypdf",
+  "aiohttp",
   "streamlit",
   "matplotlib",
   "plotly",
   "seaborn",
   "scipy",
   "tiktoken",
+  "requests",
+  "types-requests",
   "beautifulsoup4",
   "types-beautifulsoup4",
   "pillow",
   "pandas-stubs",
   "types-Pillow",
+  "tavily-python",
   "wikipedia",
   # Type checking
   "mypy",
@@ -42,7 +46,7 @@ dependencies = [
   # Linting and Formatting
   "ruff",
   # phidata
-  "phidata==2.3.3",
+  "phidata==2.3.7",
 ]
 
 [build-system]
@@ -72,7 +76,7 @@ plugins = ["pydantic.mypy"]
 exclude = ["aienv*", ".venv*"]
 
 [[tool.mypy.overrides]]
-module = ["pgvector.*", "setuptools.*"]
+module = ["pgvector.*", "setuptools.*", "langchain.*", "tavily.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

@@ -43,7 +43,8 @@ def recipe_assistant(new: bool = False, user: str = "user"):
     else:
         print(f"Continuing Run: {run_id}\n")
 
-    assistant.knowledge_base.load(recreate=False)
+    if assistant.knowledge_base:
+        assistant.knowledge_base.load(recreate=False)
     while True:
         message = Prompt.ask(f"[bold] :sunglasses: {user} [/bold]")
         if message in ("exit", "bye"):

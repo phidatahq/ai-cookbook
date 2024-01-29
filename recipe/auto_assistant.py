@@ -13,7 +13,7 @@ knowledge_base.load(recreate=False)
 assistant = Assistant(
     knowledge_base=knowledge_base,
     use_tools=True,
-    show_function_calls=True,
+    show_tool_calls=True,
 )
 
 assistant.print_response("How do I make chicken tikka salad?")

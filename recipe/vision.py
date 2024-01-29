@@ -1,13 +1,13 @@
 from phi.assistant import Assistant
 from phi.llm.openai import OpenAIChat
 
-from llm.settings import llm_settings
+from ai.settings import ai_settings
 
 assistant = Assistant(
     llm=OpenAIChat(
-        model=llm_settings.gpt_4_vision,
-        max_tokens=llm_settings.default_max_tokens,
-        temperature=llm_settings.default_temperature,
+        model=ai_settings.gpt_4_vision,
+        max_tokens=ai_settings.default_max_tokens,
+        temperature=ai_settings.default_temperature,
     ),
     monitoring=True,
 )

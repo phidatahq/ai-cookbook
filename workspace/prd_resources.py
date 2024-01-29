@@ -143,7 +143,7 @@ prd_db = DbInstance(
     name=f"{prd_key}-db",
     enabled=ws_settings.prd_db_enabled,
     group="db",
-    db_name="llm",
+    db_name="app",
     port=prd_db_port,
     engine="postgres",
     engine_version="16.1",
@@ -192,7 +192,7 @@ container_env = {
 
 # -*- Streamlit running on ECS
 prd_streamlit = Streamlit(
-    name="ai-app-prd",
+    name=f"app-{ws_settings.ws_name}",
     enabled=ws_settings.prd_app_enabled,
     group="app",
     image=prd_image,
@@ -206,8 +206,37 @@ prd_streamlit = Streamlit(
     subnets=ws_settings.subnet_ids,
     security_groups=[prd_sg],
     # To enable HTTPS, create an ACM certificate and add the ARN below:
-    # load_balancer_enable_https=True,
-    # load_balancer_certificate_arn="LOAD_BALANCER_CERTIFICATE_ARN",
+    load_balancer_enable_https=True,
+    load_balancer_certificate_arn="arn:aws:acm:us-east-1:497891874516:certificate/6598c24a-d4fc-4f17-8ee0-0d3906eb705f",
+    load_balancer_security_groups=[prd_lb_sg],
+    create_load_balancer=create_load_balancer,
+    env_vars=container_env,
+    use_cache=ws_settings.use_cache,
+    skip_delete=skip_delete,
+    save_output=save_output,
+    # Do not wait for the service to stabilize
+    wait_for_create=False,
+    # Do not wait for the service to be deleted
+    wait_for_delete=False,
+)
+
+# -*- HN AI running on ECS
+hn_ai = Streamlit(
+    name=f"hn-{ws_settings.ws_name}",
+    group="hn",
+    image=prd_image,
+    command="streamlit run hn_ai/app.py",
+    port_number=8501,
+    ecs_task_cpu="2048",
+    ecs_task_memory="4096",
+    ecs_service_count=3,
+    ecs_cluster=prd_ecs_cluster,
+    aws_secrets=[prd_secret],
+    subnets=ws_settings.subnet_ids,
+    security_groups=[prd_sg],
+    # To enable HTTPS, create an ACM certificate and add the ARN below:
+    load_balancer_enable_https=True,
+    load_balancer_certificate_arn="arn:aws:acm:us-east-1:497891874516:certificate/6598c24a-d4fc-4f17-8ee0-0d3906eb705f",
     load_balancer_security_groups=[prd_lb_sg],
     create_load_balancer=create_load_balancer,
     env_vars=container_env,
@@ -222,7 +251,7 @@ prd_streamlit = Streamlit(
 
 # -*- FastApi running on ECS
 prd_fastapi = FastApi(
-    name="ai-api-prd",
+    name=f"api-{ws_settings.ws_name}",
     enabled=ws_settings.prd_api_enabled,
     group="app",
     image=prd_image,
@@ -236,8 +265,8 @@ prd_fastapi = FastApi(
     subnets=ws_settings.subnet_ids,
     security_groups=[prd_sg],
     # To enable HTTPS, create an ACM certificate and add the ARN below:
-    # load_balancer_enable_https=True,
-    # load_balancer_certificate_arn="LOAD_BALANCER_CERTIFICATE_ARN",
+    load_balancer_enable_https=True,
+    load_balancer_certificate_arn="arn:aws:acm:us-east-1:497891874516:certificate/6598c24a-d4fc-4f17-8ee0-0d3906eb705f",
     load_balancer_security_groups=[prd_lb_sg],
     create_load_balancer=create_load_balancer,
     health_check_path="/v1/health",
@@ -261,7 +290,7 @@ prd_docker_resources = DockerResources(
 # -*- Production AwsResources
 prd_aws_resources = AwsResources(
     env=ws_settings.prd_env,
-    apps=[prd_streamlit, prd_fastapi],
+    apps=[prd_streamlit, prd_fastapi, hn_ai],
     resources=[
         prd_lb_sg,
         prd_sg,

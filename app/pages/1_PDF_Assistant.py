@@ -18,6 +18,10 @@ from utils.log import logger
 
 st.title(":snowman: PDF Assistant")
 st.markdown('<a href="https://github.com/phidatahq/phidata"><h4>by phidata</h4></a>', unsafe_allow_html=True)
+with st.expander(":rainbow[:point_down: Example Questions]"):
+    st.markdown("- How do I make chicken tikka salad?")
+    st.markdown("- How do I make chicken curry?")
+    st.markdown("- How do I make a chicken wrap?")
 
 
 def restart_assistant():

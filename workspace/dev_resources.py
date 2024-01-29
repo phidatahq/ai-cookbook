@@ -27,11 +27,11 @@ dev_image = DockerImage(
 
 # -*- Dev database running on port 5432:5432
 dev_db = PgVectorDb(
-    name=f"{ws_settings.ws_name}-db",
+    name=f"db-{ws_settings.ws_name}",
     enabled=ws_settings.dev_db_enabled,
-    pg_user="ai",
-    pg_password="ai",
-    pg_database="ai",
+    pg_user="app",
+    pg_password="app",
+    pg_database="app",
     # Connect to this db on port 5432
     host_port=5432,
     debug_mode=True,
@@ -56,7 +56,7 @@ container_env = {
 
 # -*- Streamlit running on port 8501:8501
 dev_streamlit = Streamlit(
-    name=f"{ws_settings.ws_name}-app",
+    name=f"app-{ws_settings.ws_name}",
     enabled=ws_settings.dev_app_enabled,
     image=dev_image,
     command="streamlit run app/Home.py",
@@ -71,9 +71,26 @@ dev_streamlit = Streamlit(
     depends_on=[dev_db],
 )
 
+# -*- Hackernews App running on port 8501:8501
+hn_ai = Streamlit(
+    name=f"hn-{ws_settings.ws_name}",
+    image=dev_image,
+    command="streamlit run hn_ai/app.py",
+    host_port=8502,
+    container_port=8501,
+    debug_mode=True,
+    mount_workspace=True,
+    streamlit_server_headless=True,
+    env_vars=container_env,
+    use_cache=ws_settings.use_cache,
+    # Read secrets from secrets/dev_app_secrets.yml
+    secrets_file=ws_settings.ws_root.joinpath("workspace/secrets/dev_app_secrets.yml"),
+    depends_on=[dev_db],
+)
+
 # -*- FastApi running on port 8000:8000
 dev_fastapi = FastApi(
-    name=f"{ws_settings.ws_name}-api",
+    name=f"api-{ws_settings.ws_name}",
     enabled=ws_settings.dev_api_enabled,
     image=dev_image,
     command="uvicorn api.main:app --reload",
@@ -94,5 +111,5 @@ dev_jupyter_app.env_vars = container_env
 dev_docker_resources = DockerResources(
     env=ws_settings.dev_env,
     network=ws_settings.ws_name,
-    apps=[dev_db, dev_streamlit, dev_fastapi, dev_jupyter_app],
+    apps=[dev_db, dev_streamlit, hn_ai, dev_fastapi, dev_jupyter_app],
 )
