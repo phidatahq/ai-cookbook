@@ -7,7 +7,7 @@ class AISettings(BaseSettings):
     Reference: https://pydantic-docs.helpmanual.io/usage/settings/
     """
 
-    gpt_4: str = "gpt-4-1106-preview"
+    gpt_4: str = "gpt-4-turbo-preview"
     gpt_4_vision: str = "gpt-4-vision-preview"
     gpt_3_5: str = "gpt-3.5-turbo-1106"
     dall_e: str = "dall-e-3"
