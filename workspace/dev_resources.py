@@ -75,6 +75,7 @@ dev_streamlit = Streamlit(
 hn_ai = Streamlit(
     name=f"hn-{ws_settings.ws_name}",
     image=dev_image,
+    enabled=getenv("HACKERNEWS_AI", False),
     command="streamlit run hn_ai/app.py",
     host_port=8502,
     container_port=8501,

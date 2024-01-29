@@ -223,6 +223,7 @@ prd_streamlit = Streamlit(
 # -*- HN AI running on ECS
 hn_ai = Streamlit(
     name=f"hn-{ws_settings.ws_name}",
+    enabled=getenv("HACKERNEWS_AI", False),
     group="hn",
     image=prd_image,
     command="streamlit run hn_ai/app.py",
