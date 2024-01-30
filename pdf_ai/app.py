@@ -17,7 +17,7 @@ st.set_page_config(
     page_title="PDF AI",
     page_icon=":blue_heart:",
 )
-st.title("PDF AI")
+st.title("Chat with PDFs")
 st.markdown("##### :blue_heart: built using [phidata](https://github.com/phidatahq/phidata)")
 
 
