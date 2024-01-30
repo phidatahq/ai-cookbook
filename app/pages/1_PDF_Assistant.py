@@ -125,13 +125,13 @@ def main() -> None:
         restart_assistant()
 
     if pdf_assistant.knowledge_base:
-        if st.sidebar.button("Update Knowledge Base"):
+        if st.sidebar.button("Update Knowledge Base", disabled=True):
             pdf_assistant.knowledge_base.load(recreate=False)
             st.session_state["pdf_knowledge_base_loaded"] = True
             st.sidebar.success("Knowledge base updated")
 
         if st.sidebar.button("Recreate Knowledge Base"):
-            pdf_assistant.knowledge_base.load(recreate=True)
+            pdf_assistant.knowledge_base.load(recreate=True, disabled=True)
             st.session_state["pdf_knowledge_base_loaded"] = True
             st.sidebar.success("Knowledge base recreated")
 

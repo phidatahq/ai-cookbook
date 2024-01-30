@@ -24,7 +24,7 @@ def get_hn_assistant(
     debug_mode: bool = False,
 ) -> Assistant:
     return Assistant(
-        name="hn_assistant",
+        name=f"hn_assistant_{user_id}" if user_id else "hn_assistant",
         run_id=run_id,
         user_id=user_id,
         llm=OpenAIChat(
@@ -48,7 +48,7 @@ def get_hn_assistant(
         ],
         show_tool_calls=True,
         debug_mode=debug_mode,
-        description="Your name is HackerNews Assistant and you are a chatbot that answers questions about HackerNews stories.",
+        description="Your name is HackerNews AI and you are a chatbot that answers questions about HackerNews.",
         add_datetime_to_instructions=True,
         instructions=[
             "You are made by phidata: https://github.com/phidatahq/phidata",
