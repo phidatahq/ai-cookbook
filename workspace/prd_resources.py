@@ -148,9 +148,7 @@ prd_db = DbInstance(
     engine="postgres",
     engine_version="16.1",
     allocated_storage=64,
-    # NOTE: For production, use a larger instance type.
-    # Last checked price: $0.0650 hourly = ~$50 per month
-    db_instance_class="db.t4g.medium",
+    db_instance_class="db.t4g.large",
     db_security_groups=[prd_db_sg],
     db_subnet_group=prd_db_subnet_group,
     availability_zone=ws_settings.aws_az1,
@@ -230,6 +228,36 @@ hn_ai = Streamlit(
     port_number=8501,
     ecs_task_cpu="2048",
     ecs_task_memory="4096",
+    ecs_service_count=2,
+    ecs_cluster=prd_ecs_cluster,
+    aws_secrets=[prd_secret],
+    subnets=ws_settings.subnet_ids,
+    security_groups=[prd_sg],
+    # To enable HTTPS, create an ACM certificate and add the ARN below:
+    load_balancer_enable_https=True,
+    load_balancer_certificate_arn="arn:aws:acm:us-east-1:497891874516:certificate/6598c24a-d4fc-4f17-8ee0-0d3906eb705f",
+    load_balancer_security_groups=[prd_lb_sg],
+    create_load_balancer=create_load_balancer,
+    env_vars=container_env,
+    use_cache=ws_settings.use_cache,
+    skip_delete=skip_delete,
+    save_output=save_output,
+    # Do not wait for the service to stabilize
+    wait_for_create=False,
+    # Do not wait for the service to be deleted
+    wait_for_delete=False,
+)
+
+# -*- PDF AI running on ECS
+pdf_ai = Streamlit(
+    name=f"pdf-{ws_settings.ws_name}",
+    enabled=getenv("PDF_AI", False),
+    group="pdf",
+    image=prd_image,
+    command="streamlit run pdf_ai/app.py",
+    port_number=8501,
+    ecs_task_cpu="2048",
+    ecs_task_memory="4096",
     ecs_service_count=3,
     ecs_cluster=prd_ecs_cluster,
     aws_secrets=[prd_secret],
@@ -291,7 +319,7 @@ prd_docker_resources = DockerResources(
 # -*- Production AwsResources
 prd_aws_resources = AwsResources(
     env=ws_settings.prd_env,
-    apps=[prd_streamlit, prd_fastapi, hn_ai],
+    apps=[prd_streamlit, prd_fastapi, hn_ai, pdf_ai],
     resources=[
         prd_lb_sg,
         prd_sg,
