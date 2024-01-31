@@ -14,7 +14,7 @@ from website_ai.assistant import get_website_assistant
 from utils.log import logger
 
 
-st.title("Chat with Websites")
+st.title("Chat with Websites ")
 st.markdown("##### :blue_heart: built using [phidata](https://github.com/phidatahq/phidata)")
 
 
