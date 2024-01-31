@@ -58,12 +58,12 @@ class PDFTools(ToolRegistry):
 
             return latest_document_content[:limit]
 
-    def search_latest_document(self, query: str, num_chunks: int = 5) -> Optional[str]:
+    def search_latest_document(self, query: str, num_documents: int = 5) -> Optional[str]:
         """Use this function to search the latest document uploaded by the user for a query.
 
         Args:
             query (str): Query to search for
-            num_chunks (int): Number of chunks to return. Defaults to 5.
+            num_documents (int): Number of documents to return. Defaults to 5.
 
         Returns:
             str: JSON string of the search results
@@ -91,7 +91,7 @@ class PDFTools(ToolRegistry):
             return "Sorry could not find latest document"
 
         search_results: List[Document] = vector_db.search(
-            query=query, limit=num_chunks, filters={"name": latest_document_name}
+            query=query, limit=num_documents, filters={"name": latest_document_name}
         )
         logger.debug(f"Search result: {search_results}")
 
@@ -100,7 +100,7 @@ class PDFTools(ToolRegistry):
 
         return json.dumps([doc.to_dict() for doc in search_results])
 
-    def get_document_names(self, limit: int = 20) -> Optional[List[str]]:
+    def get_document_names(self, limit: int = 20) -> Optional[str]:
         """Use this function to get the names of the documents uploaded by the user.
 
         Args:
@@ -130,17 +130,17 @@ class PDFTools(ToolRegistry):
                     document_name = row.name
                     document_names.append(document_name)
 
-                return document_names
+                return json.dumps(document_names)
             except Exception as e:
                 logger.error(f"Error getting document names: {e}")
                 return None
 
-    def search_document(self, query: str, document_name: str, num_chunks: int = 5) -> Optional[str]:
+    def search_document(self, query: str, document_name: str, num_documents: int = 5) -> Optional[str]:
         """Use this function to search the latest document uploaded by the user for a query.
 
         Args:
             query (str): Query to search for
-            num_chunks (int): Number of chunks to return. Defaults to 5.
+            num_documents (int): Number of documents to return. Defaults to 5.
 
         Returns:
             str: JSON string of the search results
@@ -151,7 +151,7 @@ class PDFTools(ToolRegistry):
             return "Sorry could not search latest document"
 
         search_results: List[Document] = self.knowledge_base.vector_db.search(
-            query=query, limit=num_chunks, filters={"name": document_name}
+            query=query, limit=num_documents, filters={"name": document_name}
         )
         logger.debug(f"Search result: {search_results}")
 
@@ -188,7 +188,7 @@ class PDFTools(ToolRegistry):
 
             return document_content[:limit]
 
-    # def get_document_introduction(self) -> Optional[str]:
+    # def get_documents_with_intro_section(self) -> Optional[str]:
     #     """Use this function to get a quick introduction to the documents uploaded by the user.
     #     This function will return a dictionary of document names and their first 200 characters.
 
@@ -211,7 +211,7 @@ class PDFTools(ToolRegistry):
     #             if rows is None:
     #                 return "Sorry could not find any documents"
 
-    #             document_names = []
+    #             document_intro = {}
     #             for row in rows:
     #                 document_name = row.name
     #                 document_names.append(document_name)

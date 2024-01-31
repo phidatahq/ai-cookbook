@@ -1,3 +1,4 @@
+import json
 from typing import Optional, List
 
 from phi.assistant import Assistant
@@ -17,7 +18,8 @@ def get_pdf_assistant(
     debug_mode: bool = False,
 ) -> Assistant:
     pdf_tools = PDFTools(user_id=user_id)
-    document_names: Optional[List[str]] = pdf_tools.get_document_names()
+    document_names_json: Optional[str] = pdf_tools.get_document_names()
+    document_names: Optional[List] = json.loads(document_names_json) if document_names_json else None
     logger.info(f"Documents available: {document_names}")
 
     introduction = "Hi, I am PDF AI, built by [phidata](https://github.com/phidatahq/phidata)."
@@ -26,8 +28,7 @@ def get_pdf_assistant(
         "You are made by phidata: https://github.com/phidatahq/phidata",
         f"You are interacting with the user: {user_id}",
         "You have a knowledge base of PDFs that you can use to answer questions.",
-        "When the user asks a question, first determine if you should search the web or your knowledge base for the answer.",
-        "If you need to search the web, use the `search_web` tool to search the web for the answer.",
+        "When the user asks a question, first determine if you can answer the question from the documents in the knowledge base.",
     ]
     if document_names is None or len(document_names) == 0:
         introduction += " Please upload a document to get started."
@@ -36,11 +37,12 @@ def get_pdf_assistant(
         )
     elif len(document_names) == 1:
         introduction += "\n\nAsk me about: {}".format(", ".join(document_names))
-        (f"You have the following documents in your knowledge base: {document_names}",)
         instructions.extend(
             [
+                f"You have the following documents in your knowledge base: {document_names}",
                 "If the user asks a specific question, use the `search_latest_document` tool to search the latest document for context.",
                 "If the user asks a summary, use the `get_latest_document_contents` tool to get the contents of the latest document.",
+                "You can also search the entire knowledge base using the `search_knowledge_base` tool.",
             ]
         )
     else:
@@ -55,9 +57,14 @@ def get_pdf_assistant(
         )
     instructions.extend(
         [
+            "You can also search the entire knowledge base using the `search_knowledge_base` tool.",
             "Keep your conversation light hearted and fun.",
             "Using information from the document, provide the user with a concise and relevant answer.",
             "If the user asks what is this? they are asking about the latest document",
+            "If you cannot find the information in the knowledge base, think if you can find it on the web. If you can find the information on the web, use the `search_web` tool",
+            "When searching the knowledge base, search for at least 3 documents.",
+            "When getting document contents, get atleast 3000 words so you get the first few pages.",
+            "Most documents have a table of contents in the beginning so if you need those, use the `get_document_contents` tool.",
             "If the user compliments you, ask them to star phidata on GitHub: https://github.com/phidatahq/phidata",
         ]
     )
