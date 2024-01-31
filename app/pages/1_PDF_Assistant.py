@@ -130,8 +130,8 @@ def main() -> None:
             st.session_state["pdf_knowledge_base_loaded"] = True
             st.sidebar.success("Knowledge base updated")
 
-        if st.sidebar.button("Recreate Knowledge Base"):
-            pdf_assistant.knowledge_base.load(recreate=True, disabled=True)
+        if st.sidebar.button("Recreate Knowledge Base", disabled=True):
+            pdf_assistant.knowledge_base.load(recreate=True)
             st.session_state["pdf_knowledge_base_loaded"] = True
             st.sidebar.success("Knowledge base recreated")
 

@@ -7,6 +7,7 @@ from phi.document.reader.pdf import PDFReader
 from phi.tools.streamlit.components import (
     get_openai_key_sidebar,
     get_username_sidebar,
+    reload_button_sidebar,
 )
 
 from pdf_ai.assistant import get_pdf_assistant
@@ -108,6 +109,13 @@ def main() -> None:
                 pdf_documents: List[Document] = reader.read(uploaded_file)
                 if pdf_documents:
                     pdf_assistant.knowledge_base.load_documents(documents=pdf_documents, upsert=True)
+                    # Refresh the assistant to update the instructions and document names
+                    pdf_assistant = get_pdf_assistant(
+                        user_id=username,
+                        run_id=st.session_state["pdf_assistant_run_id"],
+                        debug_mode=True,
+                    )
+                    st.session_state["pdf_assistant"] = pdf_assistant
                 else:
                     st.sidebar.error("Could not read PDF")
                 st.session_state[f"{pdf_name}_uploaded"] = True
@@ -137,6 +145,9 @@ def main() -> None:
     pdf_assistant_run_name = pdf_assistant.run_name
     if pdf_assistant_run_name:
         st.sidebar.write(f":thread: {pdf_assistant_run_name}")
+
+    # Show reload button
+    reload_button_sidebar()
 
 
 main()

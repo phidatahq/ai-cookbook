@@ -5,7 +5,6 @@ from phi.embedder.openai import OpenAIEmbedder
 from phi.vectordb.pgvector import PgVector2
 
 from db.session import db_url
-from utils.log import logger
 
 
 def get_pdf_knowledge_base_for_user(user_id: Optional[str] = None) -> AssistantKnowledge:
