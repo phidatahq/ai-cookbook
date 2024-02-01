@@ -43,7 +43,7 @@ class ArxivTools(ToolRegistry):
         """
         logger.debug(f"Searching arxiv for: {id_list}")
 
-        all_documents = []
+        all_result_documents = []
         document_summaries = []
         for result in self.client.results(search=arxiv.Search(id_list=id_list)):
             try:
@@ -59,17 +59,27 @@ class ArxivTools(ToolRegistry):
                     "published": result.published.isoformat() if result.published else None,
                     "pdf_url": result.pdf_url,
                     "links": [link.href for link in result.links],
-                    "summary": result.summary,
-                    "comment": result.comment,
                 }
+
+                document_summary = meta_data.copy()
+                document_summary["summary"] = result.summary
+                document_summary["comment"] = result.comment
                 document_summaries.append(
                     Document(
                         id=result.get_short_id(),
                         name=result.get_short_id(),
-                        content=json.dumps(meta_data),
+                        content=json.dumps(document_summary),
                     )
                 )
 
+                result_documents.append(
+                    Document(
+                        id=result.get_short_id(),
+                        name=result.get_short_id(),
+                        meta_data=meta_data,
+                        content=json.dumps(document_summary),
+                    )
+                )
                 if result.pdf_url:
                     logger.info(f"Downloading: {result.pdf_url}")
                     pdf_path = result.download_pdf(dirpath=str(ws_settings.storage_dir))
@@ -91,14 +101,14 @@ class ArxivTools(ToolRegistry):
                             )
 
                 if result_documents:
-                    all_documents.extend(result_documents)
+                    all_result_documents.extend(result_documents)
             except Exception as e:
                 logger.error(f"Error creating document for paper {result.entry_id}: {e}")
 
         logger.info(f"Found {len(document_summaries)} results for: {id_list}")
         try:
-            logger.info(f"Loading {len(all_documents)} documents for id_list: {id_list}")
-            self.knowledge_base.load_documents(all_documents, upsert=True)
+            logger.info(f"Loading {len(all_result_documents)} documents for id_list: {id_list}")
+            self.knowledge_base.load_documents(all_result_documents, upsert=True)
 
             logger.info(f"Loading {len(document_summaries)} document summaries for id_list: {id_list}")
             self.summary_knowledge_base.load_documents(document_summaries, upsert=True)
@@ -120,7 +130,7 @@ class ArxivTools(ToolRegistry):
         """
         logger.debug(f"Searching arxiv for: {query}")
 
-        all_documents = []
+        all_result_documents = []
         document_summaries = []
         for result in self.client.results(
             search=arxiv.Search(
@@ -143,17 +153,27 @@ class ArxivTools(ToolRegistry):
                     "published": result.published.isoformat() if result.published else None,
                     "pdf_url": result.pdf_url,
                     "links": [link.href for link in result.links],
-                    "summary": result.summary,
-                    "comment": result.comment,
                 }
+
+                document_summary = meta_data.copy()
+                document_summary["summary"] = result.summary
+                document_summary["comment"] = result.comment
                 document_summaries.append(
                     Document(
                         id=result.get_short_id(),
                         name=result.get_short_id(),
-                        content=json.dumps(meta_data),
+                        content=json.dumps(document_summary),
                     )
                 )
 
+                result_documents.append(
+                    Document(
+                        id=result.get_short_id(),
+                        name=result.get_short_id(),
+                        meta_data=meta_data,
+                        content=json.dumps(document_summary),
+                    )
+                )
                 if result.pdf_url:
                     logger.info(f"Downloading: {result.pdf_url}")
                     pdf_path = result.download_pdf(dirpath=str(ws_settings.storage_dir))
@@ -175,14 +195,14 @@ class ArxivTools(ToolRegistry):
                             )
 
                 if result_documents:
-                    all_documents.extend(result_documents)
+                    all_result_documents.extend(result_documents)
             except Exception as e:
                 logger.error(f"Error creating document for paper {result.entry_id}: {e}")
 
         logger.info(f"Found {len(document_summaries)} results for: {query}")
         try:
-            logger.info(f"Loading {len(all_documents)} documents for query: {query}")
-            self.knowledge_base.load_documents(all_documents, upsert=True)
+            logger.info(f"Loading {len(all_result_documents)} documents for query: {query}")
+            self.knowledge_base.load_documents(all_result_documents, upsert=True)
 
             logger.info(f"Loading {len(document_summaries)} document summaries for query: {query}")
             self.summary_knowledge_base.load_documents(document_summaries, upsert=True)

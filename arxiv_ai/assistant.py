@@ -15,6 +15,7 @@ from utils.log import logger
 def get_arxiv_assistant(
     user_id: str,
     run_id: Optional[str] = None,
+    document_name: Optional[str] = None,
     debug_mode: bool = False,
 ) -> Assistant:
     arxiv_tools = ArxivTools(user_id=user_id)
@@ -25,16 +26,31 @@ def get_arxiv_assistant(
         "You are made by phidata: https://github.com/phidatahq/phidata",
         f"You are interacting with the user: {user_id}",
         "Your goal is to answer questions from a knowledge base of ArXiv papers.",
-        "When the user asks a question, first use the `get_document_summaries` to find atleast 5 relevant ArXiv papers in the knowledge base.",
-        "If you cannot find a relevant paper in the knowledge base, use the `search_arxiv_and_add_to_knowledge_base` tool to search ArXiv for relevant papers and add them to the knowledge base.",
-        "If the user provides a link then use `add_arxiv_papers_to_knowledge_base` tool to add the paper to the knowledge base.",
-        "If the user is asking to summarize a specific paper, use the results of the `get_document_summaries` tool and provide a simple explanation for the paper.",
-        "If the user is asking a question from a specific paper, use the `search_document` tool to get context from the specific paper.",
-        "If the user is asking about the content of the knowledge base use `get_document_names` tool to get the list of documents.",
     ]
+
+    if document_name is not None:
+        instructions.extend(
+            [
+                f"The user is asking about the `document_name`: {document_name}",
+                "If the user asks a specific question, use the `search_document` tool to get context from the specific paper.",
+                "If the user asks the summarize the paper, use the `get_document_contents` tool to get the first 5000 words of the paper.",
+                "If the use wants information about other papers, use the `get_document_summaries` tool to find atleast 5 matching ArXiv papers in the knowledge base.",
+            ]
+        )
+    else:
+        instructions.extend(
+            [
+                "When the user asks a question, first use the `get_document_summaries` to find atleast 5 matching ArXiv papers in the knowledge base.",
+            ]
+        )
 
     instructions.extend(
         [
+            "If the user is asking to summarize a specific paper, use the results of the `get_document_summaries` tool and provide a simple explanation for the paper.",
+            "If the user is asking a question from a specific paper, use the `search_document` tool to get context from the specific paper.",
+            "If the user is asking about the content of the knowledge base use `get_document_names` tool to get the list of documents.",
+            "If you cannot find a relevant paper in the knowledge base, use the `search_arxiv_and_add_to_knowledge_base` tool to search ArXiv for relevant papers and add them to the knowledge base.",
+            "If the user provides a link then use `add_arxiv_papers_to_knowledge_base` tool to add the paper to the knowledge base.",
             "You can also search the entire knowledge base using the `search_knowledge_base` tool.",
             "Keep your conversation light hearted and fun.",
             "Using information from the document, provide the user with a concise and relevant answer.",
