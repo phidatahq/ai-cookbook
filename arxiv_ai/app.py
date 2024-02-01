@@ -9,6 +9,7 @@ from phi.tools.streamlit.components import (
 )
 
 from arxiv_ai.assistant import get_arxiv_assistant
+from arxiv_ai.knowledge import get_available_docs
 from utils.log import logger
 
 
@@ -89,22 +90,22 @@ def main() -> None:
                 st.session_state["messages"].append({"role": "assistant", "content": response})
 
     # Select a specic paper
-    # if arxiv_assistant.knowledge_base:
-    #     available_docs = get_available_docs(arxiv_assistant.knowledge_base)
-    #     selected_paper = st.sidebar.selectbox(
-    #         "Select Paper",
-    #         options=available_docs.keys(),
-    #         format_func=lambda x: available_docs[x].title,
-    #     )
-    #     if selected_paper is not None:
-    #        # Refresh the assistant to update the instructions and document names
-    #        arxiv_assistant = get_arxiv_assistant(
-    #            user_id=username,
-    #            run_id=st.session_state["arxiv_assistant_run_id"],
-    #            document_name=selected_paper,
-    #            debug_mode=True,
-    #        )
-    #        st.session_state["arxiv_assistant"] = arxiv_assistant
+    if arxiv_assistant.knowledge_base:
+        available_docs = get_available_docs(arxiv_assistant.knowledge_base)
+        print(available_docs)
+        selected_paper = st.sidebar.selectbox(
+            "Select Paper",
+            options=available_docs,
+        )
+        if selected_paper is not None:
+           # Refresh the assistant to update the instructions and document names
+           arxiv_assistant = get_arxiv_assistant(
+               user_id=username,
+               run_id=st.session_state["arxiv_assistant_run_id"],
+               document_name=selected_paper,
+               debug_mode=True,
+           )
+           st.session_state["arxiv_assistant"] = arxiv_assistant
 
     st.sidebar.markdown("---")
 
