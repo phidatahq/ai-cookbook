@@ -57,6 +57,7 @@ def get_arxiv_assistant(
             "If you cannot find the information in the knowledge base or on arxiv, **THINK** if you can find it on the web. If you can find the information on the web, use the `search_web` tool",
             "When searching the knowledge base, search for at least 3 documents.",
             "When getting document contents, get at least 5000 words so you get the first few pages.",
+            "Always try to provide the user with links to the arxiv papers if available.",
             "If the user compliments you, ask them to star phidata on GitHub: https://github.com/phidatahq/phidata",
         ]
     )
@@ -81,4 +82,6 @@ def get_arxiv_assistant(
         description="Your name is Arxiv AI and you are a designed to help users understand technical ArXiv papers.",
         add_datetime_to_instructions=True,
         instructions=instructions,
+        add_chat_history_to_messages=True,
+        num_history_messages=4,
     )

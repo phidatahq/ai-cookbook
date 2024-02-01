@@ -17,15 +17,20 @@ st.set_page_config(
     page_title="arXiv AI",
     page_icon=":orange_heart:",
 )
-st.title("Chat with arXiv Papers")
+st.title("Chat with arXiv")
 st.markdown("##### :orange_heart: built using [phidata](https://github.com/phidatahq/phidata)")
 with st.expander(":rainbow[:point_down: How to use]"):
-    st.markdown("- Ask questions like: What is FlashAttention?")
-    st.markdown("- By default it searches its knowledge base for a specific topic. You can also toggle force search arXiv to search arXiv for a specific topic")
-    st.markdown("- Ask for a summary of a paper: Summarize the paper on FlashAttention")
-    st.markdown("- Force search knowledge base using: Search knowledge base for FlashAttention")
-    st.markdown("- Force search arXiv using: Search arXiv for FlashAttention")
-    st.markdown("- Ask questions from for a specific paper: Select a paper from the sidebar")
+    st.markdown("Ask questions like:")
+    st.markdown("- What is gaia?")
+    st.markdown("- Tell me about https://arxiv.org/abs/1706.03762")
+    st.markdown("- What is FlashAttention?")
+    st.markdown("- Summarize the paper on FlashAttention")
+    st.markdown("- Search knowledge base for gaia")
+    st.markdown("- Search arXiv for gaia")
+    st.markdown("- Search the web for gaia")
+    st.markdown("Notes:")
+    st.markdown("- To Ask questions from a specific paper: Select a paper from the sidebar")
+    st.markdown("- By default it searches its knowledge base first.\nToggle force search to search arXiv for a specific topic")
     st.markdown("- Message us on [discord](https://discord.com/invite/4MtYHHrgA8) for any issues or feature requests")
 
 
@@ -45,7 +50,7 @@ def main() -> None:
         st.sidebar.info(f":technologist: User: {username}")
     else:
         st.markdown("---")
-        st.markdown("#### :technologist: Enter a username and ask me about arXiv papers")
+        st.markdown("#### :technologist: Enter a username and ask me about arXiv")
         return
 
     force_search_arxiv = st.sidebar.toggle(label='Force search arXiv', value=False, help="Turn on to search arXiv for a specific topic instead of the knowledge base")
