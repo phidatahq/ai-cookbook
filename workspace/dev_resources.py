@@ -105,6 +105,24 @@ pdf_ai = Streamlit(
     # depends_on=[dev_db],
 )
 
+# -*- Arxiv AI running on port 8504:8501
+arxiv_ai = Streamlit(
+    name=f"arxiv-{ws_settings.ws_name}",
+    image=dev_image,
+    enabled=getenv("ARXIV_AI", False),
+    command="streamlit run arxiv_ai/app.py",
+    host_port=8504,
+    container_port=8501,
+    debug_mode=True,
+    mount_workspace=True,
+    # streamlit_server_max_upload_size=10,
+    env_vars=container_env,
+    use_cache=ws_settings.use_cache,
+    # Read secrets from secrets/dev_app_secrets.yml
+    secrets_file=ws_settings.ws_root.joinpath("workspace/secrets/dev_app_secrets.yml"),
+    # depends_on=[dev_db],
+)
+
 # -*- FastApi running on port 8000:8000
 dev_fastapi = FastApi(
     name=f"api-{ws_settings.ws_name}",
@@ -128,5 +146,5 @@ dev_jupyter_app.env_vars = container_env
 dev_docker_resources = DockerResources(
     env=ws_settings.dev_env,
     network=ws_settings.ws_name,
-    apps=[dev_db, dev_streamlit, hn_ai, pdf_ai, dev_fastapi, dev_jupyter_app],
+    apps=[dev_db, dev_streamlit, hn_ai, pdf_ai, arxiv_ai, dev_fastapi, dev_jupyter_app],
 )

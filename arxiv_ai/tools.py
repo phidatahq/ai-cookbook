@@ -224,8 +224,12 @@ class ArxivTools(ToolRegistry):
         """
 
         logger.debug(f"Getting summaries relevant to: {query}")
-        relevant_documents = self.summary_knowledge_base.search(query=query, num_documents=limit)
-        return json.dumps([doc.to_dict() for doc in relevant_documents])
+        try:
+            relevant_documents = self.summary_knowledge_base.search(query=query, num_documents=limit)
+            return json.dumps([doc.to_dict() for doc in relevant_documents])
+        except Exception as e:
+            logger.error(f"Error getting summaries for query: {query}: {e}")
+            return "No documents found for query: {query}"
 
     def search_document(self, query: str, document_name: str, num_documents: int = 5) -> Optional[str]:
         """Use this function to search a particular arXiv document with name=document_name for a query.

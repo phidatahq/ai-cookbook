@@ -2,8 +2,6 @@ from typing import List
 
 import streamlit as st
 from phi.assistant import Assistant
-from phi.document import Document
-from phi.document.reader.pdf import PDFReader
 from phi.tools.streamlit.components import (
     get_openai_key_sidebar,
     get_username_sidebar,
@@ -25,7 +23,6 @@ st.markdown("##### :orange_heart: built using [phidata](https://github.com/phida
 def restart_assistant():
     st.session_state["arxiv_assistant"] = None
     st.session_state["arxiv_assistant_run_id"] = None
-    st.session_state["file_uploader_key"] += 1
     st.rerun()
 
 
@@ -39,13 +36,13 @@ def main() -> None:
         st.sidebar.info(f":technologist: User: {username}")
     else:
         st.markdown("---")
-        st.markdown("#### :technologist: Enter a username, upload a PDF and start chatting")
+        st.markdown("#### :technologist: Enter a username and ask me about Arxiv papers")
         return
 
     # Get the assistant
     arxiv_assistant: Assistant
     if "arxiv_assistant" not in st.session_state or st.session_state["arxiv_assistant"] is None:
-        logger.info("---*--- Creating PDF Assistant ---*---")
+        logger.info("---*--- Creating Arxiv Assistant ---*---")
         arxiv_assistant = get_arxiv_assistant(
             user_id=username,
             debug_mode=True,
@@ -64,7 +61,7 @@ def main() -> None:
         st.session_state["messages"] = assistant_chat_history
     else:
         logger.debug("No chat history found")
-        st.session_state["messages"] = [{"role": "assistant", "content": "Ask me questions from the PDF"}]
+        st.session_state["messages"] = [{"role": "assistant", "content": "Ask me questions from the Arxiv"}]
 
     # Prompt for user input
     if prompt := st.chat_input():
@@ -91,36 +88,23 @@ def main() -> None:
 
                 st.session_state["messages"].append({"role": "assistant", "content": response})
 
-    # Upload PDF
+    # Select a specic paper
     # if arxiv_assistant.knowledge_base:
-    #     if "file_uploader_key" not in st.session_state:
-    #         st.session_state["file_uploader_key"] = 0
-
-    #     uploaded_file = st.sidebar.file_uploader(
-    #         "Upload a PDF :page_facing_up:",
-    #         type="pdf",
-    #         key=st.session_state["file_uploader_key"],
+    #     available_docs = get_available_docs(arxiv_assistant.knowledge_base)
+    #     selected_paper = st.sidebar.selectbox(
+    #         "Select Paper",
+    #         options=available_docs.keys(),
+    #         format_func=lambda x: available_docs[x].title,
     #     )
-    #     if uploaded_file is not None:
-    #         alert = st.sidebar.info("Processing PDF...", icon="ℹ️")
-    #         pdf_name = uploaded_file.name.split(".")[0]
-    #         if f"{pdf_name}_uploaded" not in st.session_state:
-    #             reader = PDFReader()
-    #             pdf_documents: List[Document] = reader.read(uploaded_file)
-    #             if pdf_documents:
-    #                 arxiv_assistant.knowledge_base.load_documents(documents=pdf_documents, upsert=True)
-    #                 # Refresh the assistant to update the instructions and document names
-    #                 arxiv_assistant = get_arxiv_assistant(
-    #                     user_id=username,
-    #                     run_id=st.session_state["arxiv_assistant_run_id"],
-    #                     debug_mode=True,
-    #                 )
-    #                 st.session_state["arxiv_assistant"] = arxiv_assistant
-    #             else:
-    #                 st.sidebar.error("Could not read PDF")
-    #             st.session_state[f"{pdf_name}_uploaded"] = True
-    #         alert.empty()
-    #     st.sidebar.success(":information_source: If the PDF throws an error, try uploading it again")
+    #     if selected_paper is not None:
+    #        # Refresh the assistant to update the instructions and document names
+    #        arxiv_assistant = get_arxiv_assistant(
+    #            user_id=username,
+    #            run_id=st.session_state["arxiv_assistant_run_id"],
+    #            document_name=selected_paper,
+    #            debug_mode=True,
+    #        )
+    #        st.session_state["arxiv_assistant"] = arxiv_assistant
 
     st.sidebar.markdown("---")
 
