@@ -15,7 +15,7 @@ from utils.log import logger
 
 class ArxivTools(ToolRegistry):
     def __init__(self, user_id: str):
-        super().__init__(name="pdf_tools")
+        super().__init__(name="arxiv_tools")
 
         self.client: arxiv.Client = arxiv.Client()
         self.user_id: str = user_id
@@ -28,6 +28,7 @@ class ArxivTools(ToolRegistry):
         self.register(self.get_document_summaries)
         self.register(self.search_document)
         self.register(self.get_document_contents)
+        self.register(self.get_document_names)
 
     def add_arxiv_papers_to_knowledge_base(self, id_list: List[str]) -> str:
         """
@@ -260,3 +261,38 @@ class ArxivTools(ToolRegistry):
                 document_content += document_row.content
 
             return document_content[:limit]
+
+    def get_document_names(self, limit: int = 20) -> Optional[str]:
+        """Use this function to get the names of the documents uploaded from ArXiv.
+
+        Args:
+            limit (int): Maximum number of documents to return. Defaults to 20.
+
+        Returns:
+            str: JSON string of the document names
+        """
+
+        logger.debug("Getting all document names")
+        if self.knowledge_base.vector_db is None or not isinstance(self.knowledge_base.vector_db, PgVector2):
+            return None
+
+        vector_db: PgVector2 = self.knowledge_base.vector_db
+        table = vector_db.table
+        with vector_db.Session() as session, session.begin():
+            try:
+                query = session.query(table).distinct(table.c.name).limit(limit)
+                result = session.execute(query)
+                rows = result.fetchall()
+
+                if rows is None:
+                    return "Sorry could not find any documents"
+
+                document_names = []
+                for row in rows:
+                    document_name = row.meta_data["title"]
+                    document_names.append(document_name)
+
+                return json.dumps(document_names)
+            except Exception as e:
+                logger.error(f"Error getting document names: {e}")
+                return None

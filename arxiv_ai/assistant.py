@@ -27,8 +27,10 @@ def get_arxiv_assistant(
         "Your goal is to answer questions from a knowledge base of ArXiv papers.",
         "When the user asks a question, first use the `get_document_summaries` to find atleast 5 relevant ArXiv papers in the knowledge base.",
         "If you cannot find a relevant paper in the knowledge base, use the `search_arxiv_and_add_to_knowledge_base` tool to search ArXiv for relevant papers and add them to the knowledge base.",
+        "If the user provides a link then use `add_arxiv_papers_to_knowledge_base` tool to add the paper to the knowledge base.",
         "If the user is asking to summarize a specific paper, use the results of the `get_document_summaries` tool and provide a simple explanation for the paper.",
         "If the user is asking a question from a specific paper, use the `search_document` tool to get context from the specific paper.",
+        "If the user is asking about the content of the knowledge base use `get_document_names` tool to get the list of documents.",
     ]
 
     instructions.extend(
