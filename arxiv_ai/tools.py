@@ -1,18 +1,14 @@
 import json
-from io import BytesIO
 from typing import List, Optional
-from rich.pretty import pprint
 
 import arxiv
-import httpx
 from pypdf import PdfReader
 from phi.document import Document
 from phi.tools import ToolRegistry
 from phi.knowledge import AssistantKnowledge
-from phi.document.reader.pdf import PDFUrlReader
 from phi.vectordb.pgvector import PgVector2
 
-from arxiv_ai.knowledge import get_arxiv_knowledge_base_for_user
+from arxiv_ai.knowledge import get_arxiv_knowledge_base_for_user, get_arxiv_summary_knowledge_base_for_user
 from workspace.settings import ws_settings
 from utils.log import logger
 
@@ -23,35 +19,39 @@ class ArxivTools(ToolRegistry):
 
         self.client: arxiv.Client = arxiv.Client()
         self.user_id: str = user_id
+        self.summary_knowledge_base: AssistantKnowledge = get_arxiv_summary_knowledge_base_for_user(
+            user_id=user_id
+        )
         self.knowledge_base: AssistantKnowledge = get_arxiv_knowledge_base_for_user(user_id=user_id)
-        self.register(self.search_arxiv)
+        self.register(self.add_arxiv_papers_to_knowledge_base)
+        self.register(self.search_arxiv_and_add_to_knowledge_base)
+        self.register(self.get_document_summaries)
+        self.register(self.search_document)
+        self.register(self.get_document_contents)
 
-    def search_arxiv(self, query: str, max_results: int = 1) -> str:
+    def add_arxiv_papers_to_knowledge_base(self, id_list: List[str]) -> str:
         """
-        Searches arXiv for a query.
+        Use this function to add a list of arxiv papers to the knowledge base.
+
         Args:
-            query (str): The query to search arXiv for.
-            max_results (int): The maximum number of results to return. Defaults to 5.
+            id_list (list, str): The list of `id` of the papers to add to the knowledge base.
+            Should be of the format: ["2103.03404v1", "2103.03404v2"]
 
         Returns:
-            str: JSON string of relevant documents from arXiv.
+            str: If success or failure, returns a message.
         """
-        logger.debug(f"Searching arxiv for: {query}")
+        logger.debug(f"Searching arxiv for: {id_list}")
 
         all_documents = []
         document_summaries = []
-        for result in self.client.results(search=arxiv.Search(
-            query=query,
-            max_results=max_results,
-            sort_by=arxiv.SortCriterion.Relevance,
-            sort_order=arxiv.SortOrder.Descending,
-        )):
+        for result in self.client.results(search=arxiv.Search(id_list=id_list)):
             try:
                 result_documents = []
                 meta_data = {
                     "title": result.title,
+                    "name": result.get_short_id(),
                     "entry_id": result.entry_id,
-                    "updated": result.updated,
+                    "updated": result.updated.isoformat() if result.updated else None,
                     "authors": [author.name for author in result.authors],
                     "primary_category": result.primary_category,
                     "categories": result.categories,
@@ -61,7 +61,13 @@ class ArxivTools(ToolRegistry):
                     "summary": result.summary,
                     "comment": result.comment,
                 }
-                document_summaries.append(meta_data)
+                document_summaries.append(
+                    Document(
+                        id=result.get_short_id(),
+                        name=result.get_short_id(),
+                        content=json.dumps(meta_data),
+                    )
+                )
 
                 if result.pdf_url:
                     logger.info(f"Downloading: {result.pdf_url}")
@@ -69,16 +75,17 @@ class ArxivTools(ToolRegistry):
                     logger.info(f"Downloaded: {pdf_path}")
                     pdf_reader = PdfReader(pdf_path)
                     for page_number, page in enumerate(pdf_reader.pages, start=1):
-                        page_content = page.extract_text()
-                        if page_content:
+                        _page_content = page.extract_text()
+                        if _page_content:
                             _meta_data = meta_data.copy()
                             _meta_data["page"] = page_number
+                            _id = f"{result.get_short_id()}__{page_number}"
                             result_documents.append(
                                 Document(
-                                    id=result.entry_id,
-                                    name=result.title,
+                                    id=_id,
+                                    name=result.get_short_id(),
                                     meta_data=_meta_data,
-                                    content=page_content,
+                                    content=_page_content,
                                 )
                             )
 
@@ -87,55 +94,169 @@ class ArxivTools(ToolRegistry):
             except Exception as e:
                 logger.error(f"Error creating document for paper {result.entry_id}: {e}")
 
-        logger.info(f"Found {len(document_summaries)} documents: {query}")
-        logger.info(f"Loading {len(all_documents)} documents for query: {query}")
-        # pprint(all_documents)
+        logger.info(f"Found {len(document_summaries)} results for: {id_list}")
+        try:
+            logger.info(f"Loading {len(all_documents)} documents for id_list: {id_list}")
+            self.knowledge_base.load_documents(all_documents, upsert=True)
 
-        # logger.info("Adding Documents to knowledge base...")
-        # # hn_knowledge_base.vector_db.delete()
-        # hn_knowledge_base.load_documents(documents, upsert=True)
-        # return f"Loaded {len(documents)} documents to HackerNews knowledge base."
-        #
-        # print(r.title)
-        #
-        # # from phi.document.reader.arxiv import ArxivReader
-        #
-        # # arxiv = ArxivReader(max_results=max_results)
-        #
-        # # relevant_docs: List[Document] = arxiv.read(query=query)
-        # # return json.dumps([doc.to_dict() for doc in relevant_docs])
+            logger.info(f"Loading {len(document_summaries)} document summaries for id_list: {id_list}")
+            self.summary_knowledge_base.load_documents(document_summaries, upsert=True)
+        except Exception as e:
+            logger.error(f"Error loading documents for id_list: {id_list}: {e}")
+            return f"Error loading documents for id: {id_list}: {e}"
 
-    def get_document_summaries(self, query: str, limit: int = 30) -> Optional[str]:
+        return json.dumps([doc.to_dict() for doc in document_summaries])
+
+    def search_arxiv_and_add_to_knowledge_base(self, query: str, num_results: int = 5) -> str:
+        """Use this function to adds papers from arXiv that match a string query.
+
+        Args:
+            query (str): The query to get arXiv papers for.
+            num_results (int): The number of papers to add to knowledge base. Defaults to 10.
+
+        Returns:
+            str: A summary of the papers added to the knowledge base.
+        """
+        logger.debug(f"Searching arxiv for: {query}")
+
+        all_documents = []
+        document_summaries = []
+        for result in self.client.results(
+            search=arxiv.Search(
+                query=query,
+                max_results=num_results,
+                sort_by=arxiv.SortCriterion.Relevance,
+                sort_order=arxiv.SortOrder.Descending,
+            )
+        ):
+            try:
+                result_documents = []
+                meta_data = {
+                    "title": result.title,
+                    "name": result.get_short_id(),
+                    "entry_id": result.entry_id,
+                    "updated": result.updated.isoformat() if result.updated else None,
+                    "authors": [author.name for author in result.authors],
+                    "primary_category": result.primary_category,
+                    "categories": result.categories,
+                    "published": result.published.isoformat() if result.published else None,
+                    "pdf_url": result.pdf_url,
+                    "links": [link.href for link in result.links],
+                    "summary": result.summary,
+                    "comment": result.comment,
+                }
+                document_summaries.append(
+                    Document(
+                        id=result.get_short_id(),
+                        name=result.get_short_id(),
+                        content=json.dumps(meta_data),
+                    )
+                )
+
+                if result.pdf_url:
+                    logger.info(f"Downloading: {result.pdf_url}")
+                    pdf_path = result.download_pdf(dirpath=str(ws_settings.storage_dir))
+                    logger.info(f"Downloaded: {pdf_path}")
+                    pdf_reader = PdfReader(pdf_path)
+                    for page_number, page in enumerate(pdf_reader.pages, start=1):
+                        _page_content = page.extract_text()
+                        if _page_content:
+                            _meta_data = meta_data.copy()
+                            _meta_data["page"] = page_number
+                            _id = f"{result.get_short_id()}__{page_number}"
+                            result_documents.append(
+                                Document(
+                                    id=_id,
+                                    name=result.get_short_id(),
+                                    meta_data=_meta_data,
+                                    content=_page_content,
+                                )
+                            )
+
+                if result_documents:
+                    all_documents.extend(result_documents)
+            except Exception as e:
+                logger.error(f"Error creating document for paper {result.entry_id}: {e}")
+
+        logger.info(f"Found {len(document_summaries)} results for: {query}")
+        try:
+            logger.info(f"Loading {len(all_documents)} documents for query: {query}")
+            self.knowledge_base.load_documents(all_documents, upsert=True)
+
+            logger.info(f"Loading {len(document_summaries)} document summaries for query: {query}")
+            self.summary_knowledge_base.load_documents(document_summaries, upsert=True)
+        except Exception as e:
+            logger.error(f"Error loading documents for query: {query}: {e}")
+            return f"Error loading documents for query: {query}: {e}"
+
+        return json.dumps([doc.to_dict() for doc in document_summaries])
+
+    def get_document_summaries(self, query: str, limit: int = 10) -> Optional[str]:
         """Use this function to get a summary of documents available in the knowledge base.
 
         Args:
-            limit (int): Maximum number of documents to return. Defaults to 20.
+            query (str): The query to match document summaries with.
+            limit (int): Maximum number of documents to return. Defaults to 30.
 
         Returns:
-            str: JSON string of the document names
+            str: JSON string of the document summaries
         """
 
-        logger.debug("Getting all document names")
+        logger.debug(f"Getting summaries relevant to: {query}")
+        relevant_documents = self.summary_knowledge_base.search(query=query, num_documents=limit)
+        return json.dumps([doc.to_dict() for doc in relevant_documents])
+
+    def search_document(self, query: str, document_name: str, num_documents: int = 5) -> Optional[str]:
+        """Use this function to search a particular arXiv document with name=document_name for a query.
+
+        Args:
+            query (str): Query to search for
+            document_name (str): Name of the document to search
+            num_documents (int): Number of results to return. Defaults to 5.
+
+        Returns:
+            str: JSON string of the search results
+        """
+
+        logger.debug(f"Searching document {document_name} for query: {query}")
         if self.knowledge_base.vector_db is None or not isinstance(self.knowledge_base.vector_db, PgVector2):
-            return None
+            return "Sorry could not search latest document"
+
+        search_results: List[Document] = self.knowledge_base.vector_db.search(
+            query=query, limit=num_documents, filters={"name": document_name}
+        )
+        logger.debug(f"Search result: {search_results}")
+
+        if len(search_results) == 0:
+            return f"Sorry could not find any results from document: {document_name}"
+
+        return json.dumps([doc.to_dict() for doc in search_results])
+
+    def get_document_contents(self, document_name: str, limit: int = 5000) -> Optional[str]:
+        """Use this function to get the content of a particular arXiv document with name=document_name.
+
+        Args:
+            document_name (str): Name of the document to search
+            limit (int): Maximum number of characters to return. Defaults to 5000.
+
+        Returns:
+            str: JSON string of the document contents
+        """
+
+        logger.debug(f"Getting document contents for user {document_name}")
+        if self.knowledge_base.vector_db is None or not isinstance(self.knowledge_base.vector_db, PgVector2):
+            return "Sorry could not find latest document"
 
         vector_db: PgVector2 = self.knowledge_base.vector_db
         table = vector_db.table
         with vector_db.Session() as session, session.begin():
-            try:
-                query = session.query(table).distinct(table.c.name).limit(limit)
-                result = session.execute(query)
-                rows = result.fetchall()
+            document_query = (
+                session.query(table).filter(table.c.name == document_name).order_by(table.c.created_at.desc())
+            )
+            document_result = session.execute(document_query)
+            document_rows = document_result.fetchall()
+            document_content = ""
+            for document_row in document_rows:
+                document_content += document_row.content
 
-                if rows is None:
-                    return "Sorry could not find any documents"
-
-                document_names = []
-                for row in rows:
-                    document_name = row.name
-                    document_names.append(document_name)
-
-                return json.dumps(document_names)
-            except Exception as e:
-                logger.error(f"Error getting document names: {e}")
-                return None
+            return document_content[:limit]

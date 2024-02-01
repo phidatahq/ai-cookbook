@@ -140,6 +140,7 @@ class PDFTools(ToolRegistry):
 
         Args:
             query (str): Query to search for
+            document_name (str): Name of the document to search
             num_documents (int): Number of documents to return. Defaults to 5.
 
         Returns:

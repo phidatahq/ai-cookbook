@@ -17,60 +17,34 @@ def get_arxiv_assistant(
     run_id: Optional[str] = None,
     debug_mode: bool = False,
 ) -> Assistant:
-    pdf_tools = ArxivTools(user_id=user_id)
-    document_names_json: Optional[str] = pdf_tools.get_document_names()
-    document_names: Optional[List] = json.loads(document_names_json) if document_names_json else None
-    logger.info(f"Documents available: {document_names}")
+    arxiv_tools = ArxivTools(user_id=user_id)
 
     introduction = "Hi, I am Arxiv AI, built by [phidata](https://github.com/phidatahq/phidata)."
 
     instructions = [
         "You are made by phidata: https://github.com/phidatahq/phidata",
         f"You are interacting with the user: {user_id}",
-        "You have a knowledge base of ArXiv papers that you can use to answer questions.",
-        "When the user asks a question, first determine if you can answer the question from the documents in the knowledge base.",
+        "Your goal is to answer questions from a knowledge base of ArXiv papers.",
+        "When the user asks a question, first use the `get_document_summaries` to find atleast 5 relevant ArXiv papers in the knowledge base.",
+        "If you cannot find a relevant paper in the knowledge base, use the `search_arxiv_and_add_to_knowledge_base` tool to search ArXiv for relevant papers and add them to the knowledge base.",
+        "If the user is asking to summarize a specific paper, use the results of the `get_document_summaries` tool and provide a simple explanation for the paper.",
+        "If the user is asking a question from a specific paper, use the `search_document` tool to get context from the specific paper.",
     ]
-    if document_names is None or len(document_names) == 0:
-        introduction += " Please upload a document to get started."
-        instructions.append(
-            "You do not have any documents in your knowledge base. Ask the user politely to upload a document and share a nice joke with them."
-        )
-    elif len(document_names) == 1:
-        introduction += "\n\nAsk me about: {}".format(", ".join(document_names))
-        instructions.extend(
-            [
-                f"You have the following documents in your knowledge base: {document_names}",
-                "If the user asks a specific question, use the `search_latest_document` tool to search the latest document for context.",
-                "If the user asks a summary, use the `get_latest_document_contents` tool to get the contents of the latest document.",
-                "You can also search the entire knowledge base using the `search_knowledge_base` tool.",
-            ]
-        )
-    else:
-        introduction += "\n\nAsk me about: {}".format(", ".join(document_names))
-        instructions.extend(
-            [
-                f"You have the following documents in your knowledge base: {document_names}",
-                "When the user asks a question, first determine if you should search a specific document or the latest document uploaded by the user.",
-                "If the user asks a specific question, use the `search_document` tool if you know the document to search OR `search_latest_document` tool to search the latest document for context.",
-                "If the user asks to summarize a document, use the `get_document_contents` if you know the document to search OR `get_latest_document_contents` tool to get the contents of the latest document.",
-            ]
-        )
+
     instructions.extend(
         [
             "You can also search the entire knowledge base using the `search_knowledge_base` tool.",
             "Keep your conversation light hearted and fun.",
             "Using information from the document, provide the user with a concise and relevant answer.",
-            "If the user asks what is this? they are asking about the latest document",
             "If you cannot find the information in the knowledge base, think if you can find it on the web. If you can find the information on the web, use the `search_web` tool",
             "When searching the knowledge base, search for at least 3 documents.",
-            "When getting document contents, get atleast 3000 words so you get the first few pages.",
-            "Most documents have a table of contents in the beginning so if you need those, use the `get_document_contents` tool.",
+            "When getting document contents, get at least 5000 words so you get the first few pages.",
             "If the user compliments you, ask them to star phidata on GitHub: https://github.com/phidatahq/phidata",
         ]
     )
 
     return Assistant(
-        name=f"pdf_assistant_{user_id}" if user_id else "hn_assistant",
+        name=f"arxiv_assistant_{user_id}" if user_id else "arxiv_assistant",
         run_id=run_id,
         user_id=user_id,
         llm=OpenAIChat(
@@ -82,12 +56,11 @@ def get_arxiv_assistant(
         monitoring=True,
         use_tools=True,
         introduction=introduction,
-        tools=[search_web, pdf_tools],
+        tools=[search_web, arxiv_tools],
         knowledge_base=get_arxiv_knowledge_base_for_user(user_id),
         show_tool_calls=True,
         debug_mode=debug_mode,
-        description="Your name is PDF AI and you are a chatbot that answers questions from a knowledge base of PDFs.",
+        description="Your name is Arxiv AI and you are a designed to help users understand technical ArXiv papers.",
         add_datetime_to_instructions=True,
         instructions=instructions,
-        user_data={"documents": document_names},
     )
