@@ -68,10 +68,10 @@ dev_streamlit = Streamlit(
     use_cache=ws_settings.use_cache,
     # Read secrets from secrets/dev_app_secrets.yml
     secrets_file=ws_settings.ws_root.joinpath("workspace/secrets/dev_app_secrets.yml"),
-    depends_on=[dev_db],
+    # depends_on=[dev_db],
 )
 
-# -*- Hackernews App running on port 8501:8501
+# -*- Hackernews AI running on port 8502:8501
 hn_ai = Streamlit(
     name=f"hn-{ws_settings.ws_name}",
     image=dev_image,
@@ -86,7 +86,25 @@ hn_ai = Streamlit(
     use_cache=ws_settings.use_cache,
     # Read secrets from secrets/dev_app_secrets.yml
     secrets_file=ws_settings.ws_root.joinpath("workspace/secrets/dev_app_secrets.yml"),
-    depends_on=[dev_db],
+    # depends_on=[dev_db],
+)
+
+# -*- PDF AI running on port 8503:8501
+pdf_ai = Streamlit(
+    name=f"pdf-{ws_settings.ws_name}",
+    image=dev_image,
+    enabled=getenv("PDF_AI", False),
+    command="streamlit run pdf_ai/app.py",
+    host_port=8503,
+    container_port=8501,
+    debug_mode=True,
+    mount_workspace=True,
+    streamlit_server_headless=True,
+    env_vars=container_env,
+    use_cache=ws_settings.use_cache,
+    # Read secrets from secrets/dev_app_secrets.yml
+    secrets_file=ws_settings.ws_root.joinpath("workspace/secrets/dev_app_secrets.yml"),
+    # depends_on=[dev_db],
 )
 
 # -*- FastApi running on port 8000:8000
@@ -102,7 +120,7 @@ dev_fastapi = FastApi(
     use_cache=ws_settings.use_cache,
     # Read secrets from secrets/dev_app_secrets.yml
     secrets_file=ws_settings.ws_root.joinpath("workspace/secrets/dev_app_secrets.yml"),
-    depends_on=[dev_db],
+    # depends_on=[dev_db],
 )
 
 # -*- Update jupyter environment variables
@@ -112,5 +130,5 @@ dev_jupyter_app.env_vars = container_env
 dev_docker_resources = DockerResources(
     env=ws_settings.dev_env,
     network=ws_settings.ws_name,
-    apps=[dev_db, dev_streamlit, hn_ai, dev_fastapi, dev_jupyter_app],
+    apps=[dev_db, dev_streamlit, hn_ai, pdf_ai, dev_fastapi, dev_jupyter_app],
 )
