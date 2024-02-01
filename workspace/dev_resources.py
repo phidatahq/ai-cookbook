@@ -97,7 +97,7 @@ pdf_ai = Streamlit(
     container_port=8501,
     debug_mode=True,
     mount_workspace=True,
-    streamlit_server_max_upload_size=10,
+    # streamlit_server_max_upload_size=10,
     env_vars=container_env,
     use_cache=ws_settings.use_cache,
     # Read secrets from secrets/dev_app_secrets.yml
