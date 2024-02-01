@@ -10,16 +10,16 @@ from phi.tools.streamlit.components import (
     reload_button_sidebar,
 )
 
-from pdf_ai.assistant import get_pdf_assistant
+from arxiv_ai.assistant import get_pdf_assistant
 from utils.log import logger
 
 
 st.set_page_config(
-    page_title="PDF AI",
-    page_icon=":blue_heart:",
+    page_title="Arxiv AI",
+    page_icon=":orange_heart:",
 )
-st.title("Chat with PDFs")
-st.markdown("##### :blue_heart: built using [phidata](https://github.com/phidatahq/phidata)")
+st.title("Chat with Arxiv Papers")
+st.markdown("##### :orange_heart: built using [phidata](https://github.com/phidatahq/phidata)")
 
 
 def restart_assistant():

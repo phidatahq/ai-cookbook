@@ -255,6 +255,7 @@ pdf_ai = Streamlit(
     group="pdf",
     image=prd_image,
     command="streamlit run pdf_ai/app.py",
+    streamlit_server_max_upload_size=10,
     port_number=8501,
     ecs_task_cpu="2048",
     ecs_task_memory="4096",
