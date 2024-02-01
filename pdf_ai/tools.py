@@ -165,6 +165,7 @@ class PDFTools(ToolRegistry):
         """Use this function to get the content of the document with name=document_name.
 
         Args:
+            document_name (str): Name of the document to get contents of
             limit (int): Maximum number of characters to return. Defaults to 5000.
 
         Returns:

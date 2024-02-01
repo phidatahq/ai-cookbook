@@ -68,6 +68,7 @@ class ArxivTools(ToolRegistry):
                     Document(
                         id=result.get_short_id(),
                         name=result.get_short_id(),
+                        meta_data=meta_data,
                         content=json.dumps(document_summary),
                     )
                 )
@@ -162,6 +163,7 @@ class ArxivTools(ToolRegistry):
                     Document(
                         id=result.get_short_id(),
                         name=result.get_short_id(),
+                        meta_data=meta_data,
                         content=json.dumps(document_summary),
                     )
                 )

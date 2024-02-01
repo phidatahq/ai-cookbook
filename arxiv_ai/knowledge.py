@@ -1,5 +1,4 @@
-import json
-from typing import Optional
+from typing import Optional, List, Tuple
 
 from phi.knowledge import AssistantKnowledge
 from phi.embedder.openai import OpenAIEmbedder
@@ -34,26 +33,30 @@ def get_arxiv_knowledge_base_for_user(user_id: Optional[str] = None) -> Assistan
         num_documents=5,
     )
 
-def get_available_docs(arxiv_kb: AssistantKnowledge, limit: int = 10) -> Optional[dict]:
 
-    vector_db: PgVector2 = arxiv_kb.vector_db
+def get_available_docs(summary_knowledge_base: AssistantKnowledge) -> Optional[List[Tuple[str, str]]]:
+    if summary_knowledge_base.vector_db is None or not isinstance(
+        summary_knowledge_base.vector_db, PgVector2
+    ):
+        return None
+
+    vector_db = summary_knowledge_base.vector_db
     table = vector_db.table
-
     with vector_db.Session() as session, session.begin():
         try:
-            query = session.query(table).distinct(table.c.name).limit(limit)
+            query = session.query(table)
             result = session.execute(query)
             rows = result.fetchall()
 
             if rows is None:
-                return "Sorry could not find any documents"
+                return None
 
-            document_names = []
+            documents = []
             for row in rows:
-                document_name = row.meta_data["title"]
-                document_names.append(document_name)
-
-            return document_names
+                document_id = row.id
+                document_title = row.meta_data["title"]
+                documents.append((document_id, document_title))
+            return documents
         except Exception as e:
             logger.error(f"Error getting document names: {e}")
             return None

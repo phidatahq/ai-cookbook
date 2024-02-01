@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional, Tuple
 
 import streamlit as st
 from phi.assistant import Assistant
@@ -9,16 +9,24 @@ from phi.tools.streamlit.components import (
 )
 
 from arxiv_ai.assistant import get_arxiv_assistant
-from arxiv_ai.knowledge import get_available_docs
+from arxiv_ai.knowledge import get_available_docs, get_arxiv_summary_knowledge_base_for_user
 from utils.log import logger
 
 
 st.set_page_config(
-    page_title="Arxiv AI",
+    page_title="arXiv AI",
     page_icon=":orange_heart:",
 )
-st.title("Chat with Arxiv Papers")
+st.title("Chat with arXiv Papers")
 st.markdown("##### :orange_heart: built using [phidata](https://github.com/phidatahq/phidata)")
+with st.expander(":rainbow[:point_down: How to use]"):
+    st.markdown("- Ask questions like: What is FlashAttention?")
+    st.markdown("- By default it searches its knowledge base for a specific topic. You can also toggle force search arXiv to search arXiv for a specific topic")
+    st.markdown("- Ask for a summary of a paper: Summarize the paper on FlashAttention")
+    st.markdown("- Force search knowledge base using: Search knowledge base for FlashAttention")
+    st.markdown("- Force search arXiv using: Search arXiv for FlashAttention")
+    st.markdown("- Ask questions from for a specific paper: Select a paper from the sidebar")
+    st.markdown("- Message us on [discord](https://discord.com/invite/4MtYHHrgA8) for any issues or feature requests")
 
 
 def restart_assistant():
@@ -37,8 +45,10 @@ def main() -> None:
         st.sidebar.info(f":technologist: User: {username}")
     else:
         st.markdown("---")
-        st.markdown("#### :technologist: Enter a username and ask me about Arxiv papers")
+        st.markdown("#### :technologist: Enter a username and ask me about arXiv papers")
         return
+
+    force_search_arxiv = st.sidebar.toggle(label='Force search arXiv', value=False, help="Turn on to search arXiv for a specific topic instead of the knowledge base")
 
     # Get the assistant
     arxiv_assistant: Assistant
@@ -51,7 +61,6 @@ def main() -> None:
         st.session_state["arxiv_assistant"] = arxiv_assistant
     else:
         arxiv_assistant = st.session_state["arxiv_assistant"]
-
     # Create assistant run (i.e. log to database) and save run_id in session state
     st.session_state["arxiv_assistant_run_id"] = arxiv_assistant.create_run()
 
@@ -79,6 +88,8 @@ def main() -> None:
     last_message = st.session_state["messages"][-1]
     if last_message.get("role") == "user":
         question = last_message["content"]
+        if force_search_arxiv:
+            question = f"Search arXiv for: {question}"
         with st.chat_message("assistant"):
             with st.spinner("Working..."):
                 response = ""
@@ -89,23 +100,28 @@ def main() -> None:
 
                 st.session_state["messages"].append({"role": "assistant", "content": response})
 
-    # Select a specic paper
-    if arxiv_assistant.knowledge_base:
-        available_docs = get_available_docs(arxiv_assistant.knowledge_base)
-        print(available_docs)
-        selected_paper = st.sidebar.selectbox(
-            "Select Paper",
-            options=available_docs,
-        )
-        if selected_paper is not None:
-           # Refresh the assistant to update the instructions and document names
-           arxiv_assistant = get_arxiv_assistant(
-               user_id=username,
-               run_id=st.session_state["arxiv_assistant_run_id"],
-               document_name=selected_paper,
-               debug_mode=True,
-           )
-           st.session_state["arxiv_assistant"] = arxiv_assistant
+    # Select a specific paper
+    summary_knowledge_base = get_arxiv_summary_knowledge_base_for_user(user_id=username)
+    if summary_knowledge_base:
+        available_docs: Optional[List[Tuple[str, str]]] = get_available_docs(summary_knowledge_base)
+        if available_docs:
+            available_docs.insert(0, ("-- all --", "-- all --"))
+            selected_paper = st.sidebar.selectbox(
+                "Select Paper",
+                options=available_docs,
+                key="selected_paper",
+                format_func=lambda x: x[1],
+            )
+            logger.info(f"Selected paper: {selected_paper}")
+            if selected_paper is not None:
+                # Refresh the assistant to update the instructions and document names
+                arxiv_assistant = get_arxiv_assistant(
+                    user_id=username,
+                    run_id=st.session_state["arxiv_assistant_run_id"],
+                    document_name=selected_paper if selected_paper[0] != "-- all --" else None,
+                    debug_mode=True,
+                )
+                st.session_state["arxiv_assistant"] = arxiv_assistant
 
     st.sidebar.markdown("---")
 
