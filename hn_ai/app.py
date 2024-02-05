@@ -17,6 +17,14 @@ st.set_page_config(
 )
 st.title("Hacker News AI")
 st.markdown("##### :orange_heart: built using [phidata](https://github.com/phidatahq/phidata)")
+with st.expander(":rainbow[:point_down: Example Questions]"):
+    st.markdown("- Tell me about the user pg")
+    st.markdown("- What's on hackernews about AI?")
+    st.markdown("- What's on hackernews about iPhone?")
+    st.markdown("- What's trending on hackernews?")
+    st.markdown("- What are users showing on hackernews?")
+    st.markdown("- What are users asking on hackernews?")
+    st.markdown("- Summarize this story: https://news.ycombinator.com/item?id=39156778")
 
 
 def restart_assistant():
@@ -37,15 +45,6 @@ def main() -> None:
         st.markdown("---")
         st.markdown("#### :technologist: Enter a username and start chatting with the Hacker News AI")
         return
-
-    with st.expander(":orange[:point_down: Example Questions]"):
-        st.markdown("- Tell me about the user pg")
-        st.markdown("- What's on hackernews about AI?")
-        st.markdown("- What's on hackernews about iPhone?")
-        st.markdown("- What's trending on hackernews?")
-        st.markdown("- What are users showing on hackernews?")
-        st.markdown("- What are users asking on hackernews?")
-        st.markdown("- Summarize this story: https://news.ycombinator.com/item?id=39156778")
 
     # Get the assistant
     hn_assistant: Assistant
