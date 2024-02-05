@@ -5,13 +5,13 @@ from typing import Optional, List
 from phi.assistant import Assistant
 from phi.storage.assistant.postgres import PgAssistantStorage
 from phi.knowledge.pdf import PDFUrlKnowledgeBase
-from phi.vectordb.pgvector import PgVector
+from phi.vectordb.pgvector import PgVector2
 
 from db.session import db_url
 
 knowledge_base = PDFUrlKnowledgeBase(
     urls=["https://www.family-action.org.uk/content/uploads/2019/07/meals-more-recipes.pdf"],
-    vector_db=PgVector(collection="recipes", db_url=db_url),
+    vector_db=PgVector2(collection="recipes", db_url=db_url),
 )
 
 storage = PgAssistantStorage(table_name="recipe_assistant", db_url=db_url)

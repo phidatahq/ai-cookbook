@@ -30,8 +30,12 @@ with st.expander(":rainbow[:point_down: How to use]"):
     st.markdown("- Search the web for gaia")
     st.markdown("Notes:")
     st.markdown("- To Ask questions from a specific paper: Select a paper from the sidebar")
-    st.markdown("- By default it searches its knowledge base first.\nToggle force search to search arXiv for a specific topic")
-    st.markdown("- Message us on [discord](https://discord.com/invite/4MtYHHrgA8) for any issues or feature requests")
+    st.markdown(
+        "- By default it searches its knowledge base first.\nToggle force search to search arXiv for a specific topic"
+    )
+    st.markdown(
+        "- Message us on [discord](https://discord.com/invite/4MtYHHrgA8) for any issues or feature requests"
+    )
 
 
 def restart_assistant():
@@ -53,7 +57,11 @@ def main() -> None:
         st.markdown("#### :technologist: Enter a username and ask me about arXiv")
         return
 
-    force_search_arxiv = st.sidebar.toggle(label='Force search arXiv', value=False, help="Turn on to search arXiv for a specific topic instead of the knowledge base")
+    force_search_arxiv = st.sidebar.toggle(
+        label="Force search arXiv",
+        value=False,
+        help="Turn on to search arXiv for a specific topic instead of the knowledge base",
+    )
 
     # Get the assistant
     arxiv_assistant: Assistant

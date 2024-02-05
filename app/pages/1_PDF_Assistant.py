@@ -15,9 +15,12 @@ from ai.assistants.pdf_auto import get_autonomous_pdf_assistant
 from ai.assistants.pdf_rag import get_rag_pdf_assistant
 from utils.log import logger
 
-
-st.title(":snowman: PDF Assistant")
-st.markdown('<a href="https://github.com/phidatahq/phidata"><h4>by phidata</h4></a>', unsafe_allow_html=True)
+st.set_page_config(
+    page_title="PDF AI",
+    page_icon=":orange_heart:",
+)
+st.title("PDF Assistant")
+st.markdown("##### :orange_heart: built using [phidata](https://github.com/phidatahq/phidata)")
 with st.expander(":rainbow[:point_down: Example Questions]"):
     st.markdown("- How do I make chicken tikka salad?")
     st.markdown("- How do I make chicken curry?")
@@ -134,6 +137,11 @@ def main() -> None:
             pdf_assistant.knowledge_base.load(recreate=True)
             st.session_state["pdf_knowledge_base_loaded"] = True
             st.sidebar.success("Knowledge base recreated")
+
+        if st.sidebar.button("Clear Knowledge Base", disabled=True):
+            pdf_assistant.knowledge_base.vector_db.clear()
+            st.session_state["pdf_knowledge_base_loaded"] = False
+            st.sidebar.success("Knowledge base cleared")
 
     if st.sidebar.button("Auto Rename"):
         pdf_assistant.auto_rename_run()

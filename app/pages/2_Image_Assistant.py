@@ -15,9 +15,12 @@ from phi.tools.streamlit.components import (
 from ai.assistants.image import get_image_assistant
 from utils.log import logger
 
-
-st.title(":snowman: Image Assistant")
-st.markdown('<a href="https://github.com/phidatahq/phidata"><h4>by phidata</h4></a>', unsafe_allow_html=True)
+st.set_page_config(
+    page_title="Image AI",
+    page_icon=":orange_heart:",
+)
+st.title("Image Assistant")
+st.markdown("##### :orange_heart: built using [phidata](https://github.com/phidatahq/phidata)")
 
 
 def encode_image(image_file):

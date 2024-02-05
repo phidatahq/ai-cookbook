@@ -2,7 +2,7 @@ from phi.assistant.duckdb import DuckDbAssistant
 from phi.knowledge.json import JSONKnowledgeBase
 from phi.knowledge.text import TextKnowledgeBase
 from phi.knowledge.combined import CombinedKnowledgeBase
-from phi.vectordb.pgvector import PgVector
+from phi.vectordb.pgvector import PgVector2
 from phi.storage.assistant.postgres import PgAssistantStorage
 
 from db.session import db_url
@@ -17,7 +17,7 @@ sales_ai_knowledge_base = CombinedKnowledgeBase(
         JSONKnowledgeBase(path=sales_knowledge_dir),
     ],
     # Store the knowledge in `ai.sales_knowledge`
-    vector_db=PgVector(collection="sales_knowledge", db_url=db_url),
+    vector_db=PgVector2(collection="sales_knowledge", db_url=db_url),
 )
 sales_ai_knowledge_base.load(recreate=False)
 

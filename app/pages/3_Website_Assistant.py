@@ -14,9 +14,12 @@ from ai.assistants.website_auto import get_autonomous_website_assistant
 from ai.assistants.website_rag import get_rag_website_assistant
 from utils.log import logger
 
-
-st.title(":snowman: Website Assistant")
-st.markdown('<a href="https://github.com/phidatahq/phidata"><h4>by phidata</h4></a>', unsafe_allow_html=True)
+st.set_page_config(
+    page_title="Website AI",
+    page_icon=":orange_heart:",
+)
+st.title("Website Assistant")
+st.markdown("##### :orange_heart: built using [phidata](https://github.com/phidatahq/phidata)")
 with st.expander(":rainbow[:point_down: Example Questions]"):
     st.markdown("- What is phidata?")
     st.markdown("- How do I build an AI App?")
@@ -121,15 +124,20 @@ def main() -> None:
         restart_assistant()
 
     if website_assistant.knowledge_base:
-        if st.sidebar.button("Update Knowledge Base"):
+        if st.sidebar.button("Update Knowledge Base", disabled=True):
             website_assistant.knowledge_base.load(recreate=False)
             st.session_state["knowledge_base_exists"] = True
             st.sidebar.success("Knowledge base updated")
 
-        if st.sidebar.button("Recreate Knowledge Base"):
+        if st.sidebar.button("Recreate Knowledge Base", disabled=True):
             website_assistant.knowledge_base.load(recreate=True)
             st.session_state["knowledge_base_exists"] = True
             st.sidebar.success("Knowledge base recreated")
+
+        if st.sidebar.button("Clear Knowledge Base", disabled=True):
+            website_assistant.knowledge_base.vector_db.clear()
+            st.session_state["pdf_knowledge_base_loaded"] = False
+            st.sidebar.success("Knowledge base cleared")
 
     if st.sidebar.button("Auto Rename"):
         website_assistant.auto_rename_run()
