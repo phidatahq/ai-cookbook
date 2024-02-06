@@ -3,9 +3,6 @@
 https://discordpy.readthedocs.io/en/stable/ext/commands/api.html?highlight=bot#discord.ext.commands.Bot
 """
 
-ARXIV_AI_TOKEN = "MTIwNDM5OTI0MDg3MzUwODg5NQ.GI0WFJ.H7ZoHgpuGGpgdjLQHW6WWiGYTR8VNgBr7kVok0"
-
-
 from os import getenv
 import discord
 from discord.ext import commands
