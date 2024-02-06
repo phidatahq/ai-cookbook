@@ -5,6 +5,7 @@ https://discordpy.readthedocs.io/en/stable/ext/commands/api.html?highlight=bot#d
 from os import getenv
 import discord
 from discord.ext import commands
+from rich.pretty import pprint
 
 from utils.log import logger
 
@@ -22,8 +23,8 @@ def run():
 
     @bot.command()
     async def discuss(ctx):
-        logger.info(f"ctx: {ctx.__dict__}")
         logger.info(f"discussing: {ctx.message.content}")
+        pprint(ctx.__dict__)
         await ctx.reply("Hi 🙉")
 
     @bot.event
