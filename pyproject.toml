@@ -39,6 +39,7 @@ dependencies = [
   "types-Pillow",
   "tavily-python",
   "wikipedia",
+  "discord.py",
   # Type checking
   "mypy",
   # Testing
