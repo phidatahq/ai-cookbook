@@ -123,7 +123,7 @@ def run():
             logger.error(e)
             await thread.send("Sorry, arXiv is not able to process your request at the moment.")
 
-    bot.run(ARXIV_AI_TOKEN, root_logger=True)
+    bot.run(getenv("ARXIV_AI_TOKEN"), root_logger=True)
 
 
 if __name__ == "__main__":
