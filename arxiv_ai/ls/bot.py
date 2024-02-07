@@ -1,7 +1,7 @@
 from os import getenv
 
 from discord import Intents, Client, Message
-from arxiv_ai.discord.message import handle_message
+from arxiv_ai.ls.message import handle_mention, handle_message
 
 from utils.log import logger
 
@@ -22,13 +22,9 @@ def run():
         if message.author == client.user:
             return
 
-        user_name: str = message.author.name
-        user_message: str = message.content
-        server: str = message.guild.name
-        channel: str = message.channel.name
-        logger.info(f'{user_name} said: "{user_message}" in #{channel}({server})')
-
         if message.mentions and client.user.mentioned_in(message):
+            await handle_mention(message=message, client=client)
+        else:
             await handle_message(message=message, client=client)
 
         return

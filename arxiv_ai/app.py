@@ -57,6 +57,11 @@ def main() -> None:
         st.markdown("#### :technologist: Enter a username and ask me about arXiv")
         return
 
+    if username in ["latent_space", "ls", "phidata"]:
+        st.markdown("#### :warning: This username is reserved.")
+        st.markdown("#### :warning: Please refresh and use a different username")
+        return
+
     force_search_arxiv = st.sidebar.toggle(
         label="Force search arXiv",
         value=False,
