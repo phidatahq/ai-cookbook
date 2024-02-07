@@ -26,7 +26,7 @@ def get_discussion_assistant(
         assistant_run: Optional[AssistantRun] = latent_space_arxiv_bot_storage.read(run_id=thread_id)
         if assistant_run is not None:
             paper_data = assistant_run.run_data.get("paper", None)
-            logger.info(f"Paper found in run data: {paper}")
+            logger.info(f"Paper found in run data: {paper_data}")
     else:
         paper_title = paper.title
         paper_id = paper.get_short_id()
@@ -64,5 +64,5 @@ def get_discussion_assistant(
         tools=[arxiv_tools],
         add_chat_history_to_messages=True,
         num_history_messages=4,
-        run_data={"paper": {"title": paper.title, "id": paper.get_short_id()}},
+        run_data={"paper": {"title": paper_title, "id": paper_id}},
     )

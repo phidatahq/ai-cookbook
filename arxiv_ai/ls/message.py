@@ -142,7 +142,9 @@ async def handle_message(message: Message, client: Client):
     if discussion_assistant is None:
         await message.reply("Sorry, I was not able to create a thread. Please try again.")
         return
-    response = discussion_assistant.run(user_message, stream=False)
+    await thread.send("... working ...")
+    logger.info(f"Message: {user_message}")
+    response = discussion_assistant.run(message=user_message, stream=False)
     await thread.send(response)
 
     # -*- Follow up
