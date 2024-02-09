@@ -1,4 +1,5 @@
 from os import getenv
+from typing import Set
 
 from discord import Intents, Client, Message
 from arxiv_ai.ls.message import handle_mention, handle_message
@@ -12,6 +13,8 @@ def run():
     intents = Intents.default()
     intents.message_content = True
     client = Client(intents=intents)
+
+    client.active_threads: Set[int] = set()
 
     @client.event
     async def on_ready():
