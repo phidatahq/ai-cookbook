@@ -5,7 +5,7 @@ from phi.assistant.openai.tool import Retrieval
 
 # Load the recipe book from s3
 recipe_book_s3 = UrlFile(
-    url="https://www.family-action.org.uk/content/uploads/2019/07/meals-more-recipes.pdf"
+    url="https://phi-public.s3.amazonaws.com/recipes/ThaiRecipes.pdf"
 ).get_or_create()
 # Load the recipe book locally
 # recipe_book_local = LocalFile(path="data/pdfs/meals-more-recipes.pdf").get_or_create()

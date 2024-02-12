@@ -12,7 +12,7 @@ class AISettings(BaseSettings):
     gpt_3_5: str = "gpt-3.5-turbo-1106"
     dall_e: str = "dall-e-3"
     whisper: str = "whisper-1"
-    embedding_model: str = "text-embedding-ada-002"
+    embedding_model: str = "text-embedding-3-small"
     default_max_tokens: int = 1024
     default_temperature: float = 0
 
