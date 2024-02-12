@@ -288,7 +288,7 @@ class ArxivTools(ToolRegistry):
 
             return document_content[:limit]
 
-    def get_document_names(self, limit: int = 20) -> Optional[str]:
+    def get_document_names(self, limit: int = 20) -> str:
         """Use this function to get the names of the documents uploaded from ArXiv.
 
         Args:
@@ -300,7 +300,7 @@ class ArxivTools(ToolRegistry):
 
         logger.debug("Getting all document names")
         if self.knowledge_base.vector_db is None or not isinstance(self.knowledge_base.vector_db, PgVector2):
-            return None
+            return "No documents found in the knowledge base."
 
         vector_db: PgVector2 = self.knowledge_base.vector_db
         table = vector_db.table
@@ -321,4 +321,4 @@ class ArxivTools(ToolRegistry):
                 return json.dumps(document_names)
             except Exception as e:
                 logger.error(f"Error getting document names: {e}")
-                return None
+                return "No documents found in the knowledge base."
