@@ -46,6 +46,7 @@ def get_discussion_assistant(
         "Remember: DO NOT SEND AN EMAIL TO THE USER WITHOUT THEM PROVIDING THEIR EMAIL ADDRESS",
         "Make sure your email body is formatted using HTML",
         "Remind the user to check their spam folder if they do not receive the email",
+        "When you use `get_document_contents` tool, get at least 5000 characters so you get the first few pages.",
     ]
 
     return Assistant(

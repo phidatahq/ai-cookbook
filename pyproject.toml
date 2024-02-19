@@ -41,6 +41,7 @@ dependencies = [
   "wikipedia",
   "discord.py",
   "resend",
+  "gunicorn",
   # Type checking
   "mypy",
   # Testing

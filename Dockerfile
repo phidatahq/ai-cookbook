@@ -22,6 +22,8 @@ RUN pip install -r requirements.txt
 # Copy project files
 COPY . .
 
+RUN mkdir "storage"
+
 COPY scripts /scripts
 ENTRYPOINT ["/scripts/entrypoint.sh"]
 CMD ["chill"]

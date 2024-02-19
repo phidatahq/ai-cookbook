@@ -35,7 +35,7 @@ docker exec -it ai-api alembic -c db/alembic.ini upgrade head
 ```bash
 ECS_CLUSTER=ai-cookbook-prd-cluster
 TASK_ARN=$(aws ecs list-tasks --cluster ai-cookbook-prd-cluster --query "taskArns[0]" --output text)
-CONTAINER_NAME=ai-api-prd
+CONTAINER_NAME=api-ai-cookbook
 
 aws ecs execute-command --cluster $ECS_CLUSTER \
     --task $TASK_ARN \
@@ -62,3 +62,15 @@ alembic init migrations
   - set `script_location = db/migrations`
   - uncomment `black` hook in `[post_write_hooks]`
 - Update `migrations/env.py` file following [this link](https://alembic.sqlalchemy.org/en/latest/autogenerate.html)
+
+```bash
+ECS_CLUSTER=ai-cookbook-prd
+TASK_ARN=$(aws ecs list-tasks --cluster $ECS_CLUSTER --query "taskArns[0]" --output text)
+CONTAINER_NAME=api-ai-cookbook
+
+aws ecs execute-command --cluster $ECS_CLUSTER \
+    --task $TASK_ARN \
+    --container $CONTAINER_NAME \
+    --interactive \
+    --command "zsh"
+```
