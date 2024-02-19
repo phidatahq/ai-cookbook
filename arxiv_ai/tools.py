@@ -28,7 +28,7 @@ class ArxivTools(ToolRegistry):
         self.register(self.get_document_summaries)
         self.register(self.search_document)
         self.register(self.get_document_contents)
-        self.register(self.get_document_names)
+        self.register(self.get_document_titles)
 
     def add_arxiv_papers_to_knowledge_base(self, id_list: List[str]) -> str:
         """
@@ -259,12 +259,12 @@ class ArxivTools(ToolRegistry):
 
         return json.dumps([doc.to_dict() for doc in search_results])
 
-    def get_document_contents(self, document_name: str, limit: int = 5000) -> Optional[str]:
+    def get_document_contents(self, document_name: str, limit: int = 10000) -> Optional[str]:
         """Use this function to get the content of a particular arXiv document with name=document_name.
 
         Args:
-            document_name (str): Name of the document to search
-            limit (int): Maximum number of characters to return. Defaults to 5000.
+            document_name (str): Name of the document to search. Eg: "1706.03762v7"
+            limit (int): Maximum number of characters to return. Defaults to 10000.
 
         Returns:
             str: JSON string of the document contents
@@ -288,8 +288,8 @@ class ArxivTools(ToolRegistry):
 
             return document_content[:limit]
 
-    def get_document_names(self, limit: int = 20) -> str:
-        """Use this function to get the names of the documents uploaded from ArXiv.
+    def get_document_titles(self, limit: int = 20) -> Optional[str]:
+        """Use this function to get the titles of the documents uploaded from ArXiv.
 
         Args:
             limit (int): Maximum number of documents to return. Defaults to 20.
@@ -298,7 +298,7 @@ class ArxivTools(ToolRegistry):
             str: JSON string of the document names
         """
 
-        logger.debug("Getting all document names")
+        logger.debug("Getting all document titles from the knowledge base.")
         if self.knowledge_base.vector_db is None or not isinstance(self.knowledge_base.vector_db, PgVector2):
             return "No documents found in the knowledge base."
 
@@ -313,12 +313,12 @@ class ArxivTools(ToolRegistry):
                 if rows is None:
                     return "Sorry could not find any documents"
 
-                document_names = []
+                document_titles = []
                 for row in rows:
-                    document_name = row.meta_data["title"]
-                    document_names.append(document_name)
+                    document_title = row.meta_data["title"]
+                    document_titles.append(document_title)
 
-                return json.dumps(document_names)
+                return json.dumps(document_titles)
             except Exception as e:
                 logger.error(f"Error getting document names: {e}")
                 return "No documents found in the knowledge base."
