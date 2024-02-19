@@ -4,10 +4,12 @@ from textwrap import dedent
 from arxiv import Result as ArxivPaper
 from phi.assistant import Assistant
 from phi.llm.openai import OpenAIChat
+from phi.tools.resend_toolkit import ResendToolkit
 
 from ai.settings import ai_settings
 from arxiv_ai.tools import ArxivTools
 from arxiv_ai.storage import latent_space_arxiv_bot_storage
+from utils.log import logger
 
 
 def get_summary_assistant(
@@ -32,24 +34,27 @@ def get_summary_assistant(
 
     arxiv_tools = ArxivTools(user_id="latent_space")
     try:
-        paper_content = arxiv_tools.get_document_contents(paper.get_short_id(), limit=7000)
+        paper_content = arxiv_tools.get_document_contents(paper.get_short_id(), limit=10000)
     except Exception as e:
+        logger.error(e)
         paper_content = ""
 
     try:
         if paper_content == "":
             arxiv_tools.add_arxiv_papers_to_knowledge_base([paper.get_short_id()])
-            paper_content = arxiv_tools.get_document_contents(paper.get_short_id(), limit=7000)
+            paper_content = arxiv_tools.get_document_contents(paper.get_short_id(), limit=10000)
     except Exception as e:
+        logger.error(e)
         paper_content = ""
 
     instructions = [
         "You are made by phidata: https://github.com/phidatahq/phidata",
         f"You are interacting with the user: `{user_id}`",
-        "Your goal is to provide a summary of the following ArXiv paper in 3 bullet points or less",
+        "Your goal is to provide a summary of the following technical paper surrounded by the <arxiv_paper></arxiv_paper> tags.",
+        "Provide your summary in 3 bullet points or less",
         "The audience has knowledge of the field, so focus on the main contributions and findings of the paper",
         "Mention statistics and significant wins of the paper",
-        "You will also be provided with the first 7000 words of the paper to help you provide a relevant answer",
+        "You will also be provided with the first 10000 characters of the paper to help you provide a relevant answer",
     ]
 
     return Assistant(
@@ -65,17 +70,19 @@ def get_summary_assistant(
         monitoring=True,
         use_tools=True,
         debug_mode=debug_mode,
+        tools=[arxiv_tools, ResendToolkit(from_email="arxiv-ai@phidata.com")],
         instructions=instructions,
+        description="Your name is Arxiv AI and you are a designed to help users understand technical ArXiv papers.",
         add_to_system_prompt=dedent(
             """\
-        <arxiv_paper>
-        {}
-        </arxiv_paper>
+            <arxiv_paper>
+            {}
+            </arxiv_paper>
 
-        <paper_content>
-        {}
-        </paper_content>
-        """.format(json.dumps(paper_details, indent=4), paper_content)
+            <paper_content>
+            {}
+            </paper_content>
+            """.format(json.dumps(paper_details, indent=4), paper_content)
         ),
         run_data={"paper": {"title": paper.title, "id": paper.get_short_id()}},
     )

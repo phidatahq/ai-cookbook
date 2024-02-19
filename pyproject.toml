@@ -40,6 +40,7 @@ dependencies = [
   "tavily-python",
   "wikipedia",
   "discord.py",
+  "resend",
   # Type checking
   "mypy",
   # Testing
@@ -77,7 +78,7 @@ plugins = ["pydantic.mypy"]
 exclude = ["aienv*", ".venv*"]
 
 [[tool.mypy.overrides]]
-module = ["pgvector.*", "setuptools.*", "langchain.*", "tavily.*"]
+module = ["pgvector.*", "setuptools.*", "langchain.*", "tavily.*", "arxiv.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

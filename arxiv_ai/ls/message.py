@@ -77,9 +77,7 @@ async def summarize(arxiv_url: str, message: Message, client: Client):
         await thread.send(summary)
     else:
         chunked_summary = await chunk_text(summary)
-        await thread.send(f"The summary is {len(chunked_summary)} parts long.")
         for i, chunk in enumerate(chunked_summary, 1):
-            await thread.send(f"Part {i}:")
             await thread.send(chunk)
 
     # -*- Follow up
@@ -170,18 +168,13 @@ async def handle_message(message: Message, client: Client):
             await message.reply(response)
         else:
             chunked_response = await chunk_text(response)
-            await thread.send(f"The response is {len(chunked_response)} parts long.")
             for i, chunk in enumerate(chunked_response, 1):
-                await thread.send(f"Part {i}:")
                 await thread.send(chunk)
     except Exception as e:
         logger.error(e)
         await message.reply("Sorry, I was not able to process your request. Please try again.")
         client.active_threads.remove(thread_id)
         return
-
-    # -*- Follow up
-    await thread.send("-----\n\nAny more questions?")
 
     client.active_threads.remove(thread_id)
 
