@@ -1,5 +1,6 @@
 from os import getenv
 
+from phi.docker.app.base import DockerApp
 from phi.docker.app.fastapi import FastApi
 from phi.docker.app.postgres import PgVectorDb
 from phi.docker.app.streamlit import Streamlit
@@ -138,6 +139,20 @@ dev_fastapi = FastApi(
     # depends_on=[dev_db],
 )
 
+# -*- Arxiv Discord Bot
+arxiv_bot = DockerApp(
+    name=f"arxiv-bot-{ws_settings.ws_name}",
+    image=dev_image,
+    enabled=getenv("ARXIV_BOT", False),
+    command="python arxiv_ai/ls/bot.py",
+    debug_mode=True,
+    mount_workspace=True,
+    env_vars=container_env,
+    use_cache=ws_settings.use_cache,
+    # Read secrets from secrets/dev_app_secrets.yml
+    secrets_file=ws_settings.ws_root.joinpath("workspace/secrets/dev_app_secrets.yml"),
+)
+
 # -*- Update jupyter environment variables
 dev_jupyter_app.env_vars = container_env
 
@@ -145,5 +160,5 @@ dev_jupyter_app.env_vars = container_env
 dev_docker_resources = DockerResources(
     env=ws_settings.dev_env,
     network=ws_settings.ws_name,
-    apps=[dev_db, dev_streamlit, hn_ai, pdf_ai, arxiv_ai, dev_fastapi, dev_jupyter_app],
+    apps=[dev_db, dev_streamlit, hn_ai, pdf_ai, arxiv_ai, dev_fastapi, dev_jupyter_app, arxiv_bot],
 )

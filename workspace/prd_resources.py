@@ -1,5 +1,6 @@
 from os import getenv
 
+from phi.aws.app.base import AwsApp
 from phi.aws.app.fastapi import FastApi
 from phi.aws.app.streamlit import Streamlit
 from phi.aws.resources import AwsResources
