@@ -1,5 +1,6 @@
 import json
 from typing import List, Optional
+from pathlib import Path
 
 import arxiv
 from pypdf import PdfReader
@@ -23,12 +24,15 @@ class ArxivTools(ToolRegistry):
             user_id=user_id
         )
         self.knowledge_base: AssistantKnowledge = get_arxiv_knowledge_base_for_user(user_id=user_id)
+        self.storage_dir: Path = ws_settings.ws_root.joinpath(ws_settings.storage_dir)
         self.register(self.add_arxiv_papers_to_knowledge_base)
         self.register(self.search_arxiv_and_add_to_knowledge_base)
         self.register(self.get_document_summaries)
         self.register(self.search_document)
         self.register(self.get_document_contents)
         self.register(self.get_document_titles)
+        if not self.storage_dir.exists():
+            self.storage_dir.mkdir(parents=True, exist_ok=True)
 
     def add_arxiv_papers_to_knowledge_base(self, id_list: List[str]) -> str:
         """
@@ -83,7 +87,7 @@ class ArxivTools(ToolRegistry):
                 )
                 if result.pdf_url:
                     logger.info(f"Downloading: {result.pdf_url}")
-                    pdf_path = result.download_pdf(dirpath=str(ws_settings.storage_dir))
+                    pdf_path = result.download_pdf(dirpath=str(self.storage_dir))
                     logger.info(f"Downloaded: {pdf_path}")
                     pdf_reader = PdfReader(pdf_path)
                     for page_number, page in enumerate(pdf_reader.pages, start=1):
@@ -178,7 +182,7 @@ class ArxivTools(ToolRegistry):
                 )
                 if result.pdf_url:
                     logger.info(f"Downloading: {result.pdf_url}")
-                    pdf_path = result.download_pdf(dirpath=str(ws_settings.storage_dir))
+                    pdf_path = result.download_pdf(dirpath=str(self.storage_dir))
                     logger.info(f"Downloaded: {pdf_path}")
                     pdf_reader = PdfReader(pdf_path)
                     for page_number, page in enumerate(pdf_reader.pages, start=1):
@@ -279,7 +283,9 @@ class ArxivTools(ToolRegistry):
         try:
             with vector_db.Session() as session, session.begin():
                 document_query = (
-                    session.query(table).filter(table.c.name == document_name).order_by(table.c.created_at.desc())
+                    session.query(table)
+                    .filter(table.c.name == document_name)
+                    .order_by(table.c.created_at.desc())
                 )
                 document_result = session.execute(document_query)
                 document_rows = document_result.fetchall()
