@@ -26,7 +26,7 @@ async def discuss(arxiv_url: str, message: Message, client: Client):
         thread = await message.create_thread(name=paper.title)
     except Exception as e:
         logger.error(e)
-        await message.reply("Sorry, I was not able to create a thread.")
+        # await message.reply("Sorry, I was not able to create a thread.")
         return
 
     # -*- Create run in the database
@@ -42,46 +42,46 @@ async def discuss(arxiv_url: str, message: Message, client: Client):
     await thread.send(f"How can I help with: `{paper.title}`")
 
 
-async def summarize(arxiv_url: str, message: Message, client: Client):
-    logger.info(f"Summarizing: {arxiv_url}")
-
-    # -*- Get Result from ArXiv
-    try:
-        paper_id = arxiv_url.split("/")[-1]
-        paper: ArxivPaper = next(arxiv.Client().results(arxiv.Search(id_list=[paper_id])))
-    except Exception as e:
-        logger.error(e)
-        await message.reply("Sorry, could not find this paper.")
-        return
-
-    if paper is None:
-        await message.reply("Sorry, could not find this paper.")
-        return
-
-    try:
-        thread = await message.create_thread(name=paper.title)
-    except Exception as e:
-        logger.error(e)
-        await message.reply("Sorry, I was not able to create a thread.")
-        return
-
-    await thread.send(f"Reading up on: `{paper.title}`")
-
-    # -*- Start the LLM summarization
-    thread_id: int = thread.id
-    user_name: str = message.author.name
-    summary_assistant = get_summary_assistant(user_id=user_name, thread_id=str(thread_id), paper=paper)
-    summary = summary_assistant.run(stream=False)
-
-    if len(summary) < 1900:
-        await thread.send(summary)
-    else:
-        chunked_summary = await chunk_text(summary)
-        for i, chunk in enumerate(chunked_summary, 1):
-            await thread.send(chunk)
-
-    # -*- Follow up
-    await thread.send("-----\n\nHow can I help with this paper?")
+# async def summarize(arxiv_url: str, message: Message, client: Client):
+#     logger.info(f"Summarizing: {arxiv_url}")
+#
+#     # -*- Get Result from ArXiv
+#     try:
+#         paper_id = arxiv_url.split("/")[-1]
+#         paper: ArxivPaper = next(arxiv.Client().results(arxiv.Search(id_list=[paper_id])))
+#     except Exception as e:
+#         logger.error(e)
+#         await message.reply("Sorry, could not find this paper.")
+#         return
+#
+#     if paper is None:
+#         await message.reply("Sorry, could not find this paper.")
+#         return
+#
+#     try:
+#         thread = await message.create_thread(name=paper.title)
+#     except Exception as e:
+#         logger.error(e)
+#         await message.reply("Sorry, I was not able to create a thread.")
+#         return
+#
+#     await thread.send(f"Reading up on: `{paper.title}`")
+#
+#     # -*- Start the LLM summarization
+#     thread_id: int = thread.id
+#     user_name: str = message.author.name
+#     summary_assistant = get_summary_assistant(user_id=user_name, thread_id=str(thread_id), paper=paper)
+#     summary = summary_assistant.run(stream=False)
+#
+#     if len(summary) < 1900:
+#         await thread.send(summary)
+#     else:
+#         chunked_summary = await chunk_text(summary)
+#         for i, chunk in enumerate(chunked_summary, 1):
+#             await thread.send(chunk)
+#
+#     # -*- Follow up
+#     await thread.send("-----\n\nHow can I help with this paper?")
 
 
 async def handle_mention(message: Message, client: Client):
@@ -114,14 +114,12 @@ async def handle_mention(message: Message, client: Client):
             "Please provide a valid arXiv paper URL. Example: `https://arxiv.org/abs/1706.03762`"
         )
 
-    if message_parts[1].lower() == "summary":
-        return await summarize(arxiv_url=message_parts[2], message=message, client=client)
-    elif message_parts[1].lower() == "discuss":
+    # if message_parts[1].lower() == "summary":
+    #     return await summarize(arxiv_url=message_parts[2], message=message, client=client)
+    if message_parts[1].lower() == "discuss":
         return await discuss(arxiv_url=message_parts[2], message=message, client=client)
     else:
-        await message.reply(
-            "Hi, please use `@ArxivAI discuss <paper>` or `@ArxivAI summary <paper>` to interact with me."
-        )
+        await message.reply("Hi, please use `@ArxivAI discuss <paper>` to interact with me.")
 
     return
 
@@ -157,10 +155,10 @@ async def handle_message(message: Message, client: Client):
 
     try:
         if discussion_assistant is None:
-            await message.reply("Sorry, I was not able to create a thread. Please try again.")
+            await message.reply("Sorry, I was not able to process your request. Please start again.")
             client.active_threads.remove(thread_id)
             return
-        await thread.send("... working ...")
+        await thread.send("... working")
         logger.info(f"Message: {user_message}")
         response = discussion_assistant.run(message=user_message, stream=False)
 
@@ -172,7 +170,7 @@ async def handle_message(message: Message, client: Client):
                 await thread.send(chunk)
     except Exception as e:
         logger.error(e)
-        await message.reply("Sorry, I was not able to process your request. Please try again.")
+        await message.reply("Sorry, I was not able to process your request. Please start again.")
         client.active_threads.remove(thread_id)
         return
 

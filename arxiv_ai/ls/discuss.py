@@ -36,12 +36,24 @@ def get_discussion_assistant(
         paper_title = paper_data.get("title")
         paper_id = paper_data.get("id")
 
+    if paper_id is None:
+        return None
+
+    try:
+        paper_content = arxiv_tools.get_document_contents(paper_id, limit=100)
+        if paper_content == "":
+            arxiv_tools.add_arxiv_papers_to_knowledge_base([paper_id])
+    except Exception as e:
+        logger.error(e)
+
     instructions = [
         "You are made by phidata: https://github.com/phidatahq/phidata",
         f"You are interacting with the user: `{user_id}`",
         f"Your goal is to help the use answer questions about the ArXiv paper `title: {paper_title}` | `name: {paper_id}`",
+        "If the user asks to summarize, use the `get_document_contents` tool to get the first 15000 characters and return a summary of the paper in 3 bullet points or less",
         "The audience has knowledge of the field, so focus on the main contributions and findings of the paper",
         "Mention statistics and significant wins of the paper",
+        "If the users asks questions from the paper, use the `search_document` tool.",
         "If the users asks to send an email, always ask the user for their email address and then use the `send_email` tool to send the email.",
         "Remember: DO NOT SEND AN EMAIL TO THE USER WITHOUT THEM PROVIDING THEIR EMAIL ADDRESS",
         "Make sure your email body is formatted using HTML",
