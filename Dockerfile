@@ -3,6 +3,7 @@ FROM phidata/python:3.11.5
 ARG USER=app
 ARG APP_DIR=${USER_LOCAL_DIR}/${USER}
 ENV APP_DIR=${APP_DIR}
+ENV STORAGE_DIR=${APP_DIR}/storage
 # Add APP_DIR to PYTHONPATH
 ENV PYTHONPATH="${APP_DIR}:${PYTHONPATH}"
 
@@ -22,8 +23,7 @@ RUN pip install -r requirements.txt
 # Copy project files
 COPY . .
 
-RUN mkdir "storage"
-
+RUN mkdir -p ${STORAGE_DIR}
 COPY scripts /scripts
 ENTRYPOINT ["/scripts/entrypoint.sh"]
 CMD ["chill"]

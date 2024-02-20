@@ -342,6 +342,30 @@ prd_fastapi = FastApi(
     wait_for_delete=False,
 )
 
+# -*- Arxiv Bot
+arxiv_bot = AwsApp(
+    name=f"{ws_settings.ws_name}-arxiv-bot",
+    enabled=getenv("ARXIV_BOT", False),
+    group="arxiv",
+    image=prd_image,
+    command="python arxiv_ai/ls/bot.py",
+    ecs_task_cpu="2048",
+    ecs_task_memory="4096",
+    ecs_service_count=1,
+    ecs_cluster=prd_ecs_cluster,
+    aws_secrets=[prd_secret],
+    subnets=ws_settings.subnet_ids,
+    security_groups=[prd_sg],
+    env_vars=container_env,
+    use_cache=ws_settings.use_cache,
+    skip_delete=skip_delete,
+    save_output=save_output,
+    # Do not wait for the service to stabilize
+    wait_for_create=False,
+    # Do not wait for the service to be deleted
+    wait_for_delete=False,
+)
+
 # -*- Production DockerResources
 prd_docker_resources = DockerResources(
     env=ws_settings.prd_env,
@@ -352,7 +376,7 @@ prd_docker_resources = DockerResources(
 # -*- Production AwsResources
 prd_aws_resources = AwsResources(
     env=ws_settings.prd_env,
-    apps=[prd_streamlit, prd_fastapi, hn_ai, pdf_ai, arxiv_ai],
+    apps=[prd_streamlit, prd_fastapi, hn_ai, pdf_ai, arxiv_ai, arxiv_bot],
     resources=[
         prd_lb_sg,
         prd_sg,

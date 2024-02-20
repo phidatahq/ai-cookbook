@@ -22,9 +22,6 @@ Pipfile.lock
 .env
 .envrc
 
-# ignore storage dir
-storage
-
 # ignore virtualenvs
 .venv
 venv*

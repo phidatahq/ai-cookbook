@@ -270,23 +270,29 @@ class ArxivTools(ToolRegistry):
             str: JSON string of the document contents
         """
 
-        logger.debug(f"Getting document contents for user {document_name}")
+        logger.debug(f"Getting document contents: {document_name}")
         if self.knowledge_base.vector_db is None or not isinstance(self.knowledge_base.vector_db, PgVector2):
-            return "Sorry could not find latest document"
+            return "Vector DB not found."
 
         vector_db: PgVector2 = self.knowledge_base.vector_db
         table = vector_db.table
-        with vector_db.Session() as session, session.begin():
-            document_query = (
-                session.query(table).filter(table.c.name == document_name).order_by(table.c.created_at.desc())
-            )
-            document_result = session.execute(document_query)
-            document_rows = document_result.fetchall()
-            document_content = ""
-            for document_row in document_rows:
-                document_content += document_row.content
+        try:
+            with vector_db.Session() as session, session.begin():
+                document_query = (
+                    session.query(table).filter(table.c.name == document_name).order_by(table.c.created_at.desc())
+                )
+                document_result = session.execute(document_query)
+                document_rows = document_result.fetchall()
+                document_content = ""
+                for document_row in document_rows:
+                    document_content += document_row.content
 
-            return document_content[:limit]
+                return document_content[:limit]
+        except Exception as e:
+            logger.error(f"Error getting document contents: {e}")
+            logger.error("Table might not exist, creating for future use")
+            vector_db.create()
+            return ""
 
     def get_document_titles(self, limit: int = 20) -> Optional[str]:
         """Use this function to get the titles of the documents uploaded from ArXiv.
