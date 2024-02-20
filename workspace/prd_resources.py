@@ -344,7 +344,7 @@ prd_fastapi = FastApi(
 
 # -*- Arxiv Bot
 arxiv_bot = AwsApp(
-    name=f"{ws_settings.ws_name}-arxiv-bot",
+    name="arxiv-bot",
     enabled=getenv("ARXIV_BOT", False),
     group="arxiv",
     image=prd_image,
@@ -358,6 +358,7 @@ arxiv_bot = AwsApp(
     security_groups=[prd_sg],
     env_vars=container_env,
     use_cache=ws_settings.use_cache,
+    assign_public_ip=True,
     skip_delete=skip_delete,
     save_output=save_output,
     # Do not wait for the service to stabilize
