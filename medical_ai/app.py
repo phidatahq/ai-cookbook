@@ -21,7 +21,7 @@ st.set_page_config(
     layout="wide",
 )
 st.title("Medical Research AI")
-st.markdown("##### :orange_heart: built using [phidata](https://github.com/phidatahq/phidata)")
+st.markdown("##### :orange_heart: built by phidata ([book a call](https://cal.com/phidata/intro) to learn more)")
 
 disclaimer = """\
 This application is not intended to replace professional medical advice, diagnosis, or treatment. The information provided by our AI technology is based on data input and should not be used as the sole basis for making medical decisions. While we strive to offer accurate and up-to-date medical information, the outputs provided by the AI are predictions and may be subject to inaccuracies.
@@ -38,31 +38,30 @@ with st.expander(":rainbow[:point_down: Disclaimer]"):
 
 def main() -> None:
     # Get username
-    # username = get_username_sidebar()
-    # if username:
-    #     st.sidebar.info(f":female-doctor: User: {username}")
-    # else:
-    #     st.markdown("---")
-    #     st.markdown("#### :female-doctor: Please enter a username")
-    #     return
+    username = get_username_sidebar()
+    if username:
+        st.sidebar.info(f":female-doctor: User: {username}")
+    else:
+        st.sidebar.markdown("#### :female-doctor: Please enter a username")
+        return
 
     # Get topic for report
-    input_topic = st.text_input(
-        ":female-doctor: Enter a topic to generate a report",
-        value="AI in Healthcare",
+    input_topic = st.sidebar.text_input(
+        ":female-doctor: Enter a topic",
+        value="Acute respiratory distress syndrome",
     )
     # Button to generate report
-    generate_report = st.button("Generate Report")
+    generate_report = st.sidebar.button("Generate Report")
     if generate_report:
         st.session_state["topic"] = input_topic
 
     # Checkboxes for search
     st.sidebar.markdown("## Search Options")
     search_arxiv = st.sidebar.checkbox("Search ArXiv", value=True)
-    search_web = st.sidebar.checkbox("Search Web", value=True)
+    search_web = st.sidebar.checkbox("Search Web", value=False)
     search_pubmed = st.sidebar.checkbox("Search PubMed", disabled=True)
     search_google_scholar = st.sidebar.checkbox("Search Google Scholar", disabled=True)
-    use_cache = st.sidebar.toggle("Use Cache", value=True)
+    use_cache = st.sidebar.toggle("Use Cache", value=False, disabled=True)
     num_search_terms = st.sidebar.number_input(
         "Number of Search Terms", value=1, min_value=1, max_value=3, help="This will increase latency."
     )
@@ -71,6 +70,12 @@ def main() -> None:
     st.sidebar.markdown("## Trending Topics")
     if st.sidebar.button("AI in Healthcare"):
         st.session_state["topic"] = "AI in Healthcare"
+
+    if st.sidebar.button("Acute respiratory distress syndrome"):
+        st.session_state["topic"] = "Acute respiratory distress syndrome"
+
+    if st.sidebar.button("Sepsis"):
+        st.session_state["topic"] = "Sepsis"
 
     if "topic" in st.session_state:
         report_topic = st.session_state["topic"]
@@ -122,8 +127,13 @@ def main() -> None:
 
         if search_web:
             _content = {}
-            for search_term in search_terms.terms:
-                _content[search_term] = exa_search(search_term)
+            with st.status("Reading ArXiv Papers", expanded=True) as status:
+                with st.container():
+                    web_container = st.empty()
+                    for search_term in search_terms.terms:
+                        _content[search_term] = exa_search(search_term)
+                    web_container.json(_content)
+                status.update(label="Reading Web Content Complete", state="complete", expanded=False)
             web_content = json.dumps(_content, indent=4)
 
         report_input = ""
