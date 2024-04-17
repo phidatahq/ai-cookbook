@@ -310,6 +310,36 @@ arxiv_ai = Streamlit(
     wait_for_delete=False,
 )
 
+# -*- Medical AI running on ECS
+medical_ai = Streamlit(
+    name=f"medical-{ws_settings.ws_name}",
+    enabled=getenv("MEDICAL_AI", False),
+    group="medical",
+    image=prd_image,
+    command="streamlit run medical_ai/app.py",
+    port_number=8501,
+    ecs_task_cpu="2048",
+    ecs_task_memory="4096",
+    ecs_service_count=2,
+    ecs_cluster=prd_ecs_cluster,
+    aws_secrets=[prd_secret],
+    subnets=ws_settings.subnet_ids,
+    security_groups=[prd_sg],
+    # To enable HTTPS, create an ACM certificate and add the ARN below:
+    load_balancer_enable_https=True,
+    load_balancer_certificate_arn="arn:aws:acm:us-east-1:497891874516:certificate/6598c24a-d4fc-4f17-8ee0-0d3906eb705f",
+    load_balancer_security_groups=[prd_lb_sg],
+    create_load_balancer=create_load_balancer,
+    env_vars=container_env,
+    use_cache=ws_settings.use_cache,
+    skip_delete=skip_delete,
+    save_output=save_output,
+    # Do not wait for the service to stabilize
+    wait_for_create=False,
+    # Do not wait for the service to be deleted
+    wait_for_delete=False,
+)
+
 # -*- FastApi running on ECS
 prd_fastapi = FastApi(
     name=f"api-{ws_settings.ws_name}",

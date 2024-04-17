@@ -21,6 +21,7 @@ dependencies = [
   "sqlalchemy",
   # Project libraries
   "arxiv",
+  "exa_py",
   "openai",
   "pypdf",
   "aiohttp",
@@ -49,7 +50,7 @@ dependencies = [
   # Linting and Formatting
   "ruff",
   # phidata
-  "phidata==2.3.40",
+  "phidata[aws]==2.3.72",
 ]
 
 [build-system]
